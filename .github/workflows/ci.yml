@@ -1,0 +1,18 @@
+name: ci
+on: [push, pull_request]
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    env:
+      MUJOCO_GL: egl
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v3
+      - run: sudo apt-get update && sudo apt-get install -y libegl1 libgl1 ffmpeg
+      - run: make setup
+      - run: make lint
+      - run: make typecheck
+      - run: make safety-test   # safety tests run first and separately: never skipped
+      - run: make test
+      - run: make sim-smoke
+      - run: make scan

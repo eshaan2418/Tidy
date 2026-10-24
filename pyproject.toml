@@ -1,0 +1,48 @@
+[project]
+name = "tidy"
+version = "0.1.0"
+description = "Teach a low-cost arm household chores from ~10 human phone videos, with uncertainty-driven demo requests and per-phase recovery."
+requires-python = ">=3.11,<3.13"
+dependencies = [
+  "numpy>=2.0",
+  "scipy>=1.13",
+  "mujoco>=3.2",
+  "torch>=2.4",
+  "opencv-python-headless>=4.10",
+  "pyyaml>=6.0",
+  "matplotlib>=3.9",
+  "imageio[ffmpeg]>=2.34",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "ruff>=0.6", "mypy>=1.11", "types-PyYAML"]
+real = ["lerobot"]
+
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["common", "sim", "safety", "perception", "phases", "retarget", "policies", "policies.act", "policies.diffusion", "policies.vla", "active", "recovery", "practice", "eval", "scripts", "bench", "hardware"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "NPY"]
+ignore = ["E741", "B905"]
+
+[tool.mypy]
+python_version = "3.12"
+ignore_missing_imports = true
+warn_unused_ignores = false
+check_untyped_defs = false
+files = ["common", "sim", "safety", "perception", "phases", "retarget", "policies", "active", "recovery", "practice", "eval", "scripts", "bench", "hardware"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["safety: safety-critical tests (must never be skipped)", "slow: longer sim tests"]
+
+[tool.ruff.lint.per-file-ignores]
+"sim/scene.py" = ["E501"]

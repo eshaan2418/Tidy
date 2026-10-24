@@ -1,0 +1,21 @@
+.venv/
+__pycache__/
+*.pyc
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+data/private/
+data/cache/
+*.egg-info/
+.DS_Store
+# large artifacts kept out of git; manifests + hashes are committed instead
+results/**/*.pt
+results/**/*.mp4
+results/**/*.npz
+data/human/**/*.npz
+data/robot/**/*.npz
+data/sim/**/*.mp4
+checkpoints/
+.env
+*.key
+MUJOCO_LOG.TXT
