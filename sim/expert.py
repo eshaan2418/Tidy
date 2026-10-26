@@ -17,6 +17,30 @@ from sim.env import EEAction
 from sim.scene import ObjectSpec
 
 MAX_STEP = 0.018  # m per 10 Hz tick (just under the 0.2 m/s TCP safety limit)
+TRANSIT_Z = 0.12  # fingertips clear the tallest object (cup, 7 cm) even on the 2.5 cm shelf
+
+
+def polar_step(ee: np.ndarray, goal: np.ndarray, max_step: float, transit_z: float) -> np.ndarray:
+    """One bounded step toward `goal`, moving in (radius, pan angle, z) so the path arcs around the robot
+    base, and rising to `transit_z` before any long horizontal move (avoids sweeping through objects)."""
+    r0, t0 = float(np.hypot(ee[0], ee[1])), float(np.arctan2(ee[1], ee[0]))
+    r1, t1 = float(np.hypot(goal[0], goal[1])), float(np.arctan2(goal[1], goal[0]))
+    dth = float((t1 - t0 + np.pi) % (2 * np.pi) - np.pi)
+    horiz = float(np.hypot(r1 - r0, 0.5 * (r0 + r1) * dth))
+    z_goal = float(goal[2])
+    if horiz > 0.03 and ee[2] < transit_z - 0.005:
+        z_goal = max(z_goal, transit_z)
+        # rise vertically first (fingers may still straddle an item just placed), then allow a little
+        # horizontal motion once the fingertips are near transit height
+        dz = np.clip(z_goal - ee[2], -max_step, max_step)
+        frac = 0.0 if ee[2] < transit_z - 0.012 else 0.25 * max_step / max(horiz, 1e-6)
+        r, th = r0 + frac * (r1 - r0), t0 + frac * dth
+        return np.array([r * np.cos(th), r * np.sin(th), ee[2] + dz])
+    d = np.array([r1 - r0, 0.5 * (r0 + r1) * dth, z_goal - ee[2]])
+    n = float(np.linalg.norm(d))
+    s = 1.0 if n <= max_step else max_step / n
+    r, th, z = r0 + s * (r1 - r0), t0 + s * dth, ee[2] + s * (z_goal - ee[2])
+    return np.array([r * np.cos(th), r * np.sin(th), z])
 PHASES = ("reach", "descend", "grasp", "lift", "transport", "lower", "release", "retreat")
 
 
@@ -29,6 +53,18 @@ def grasp_yaw(obj: ObjectSpec, obj_yaw: float) -> float:
     return float(wrap_half_pi(obj_yaw))  # cylinder: any
 
 
+def jaw_half_extent(obj: ObjectSpec) -> float:
+    if obj.kind == "box":
+        return float(min(obj.size[0], obj.size[1]))
+    return float(obj.size[0])
+
+
+def gripper_cmd_for_opening(opening: float) -> float:
+    from common.kinematics import GEOM
+
+    return float(np.clip(1.0 - opening / GEOM.max_opening, 0.0, 1.0))
+
+
 def grasp_height(obj: ObjectSpec) -> float:
     return float(max(obj.height / 2, 0.014))
 
@@ -37,7 +73,7 @@ def grasp_height(obj: ObjectSpec) -> float:
 class PickPlaceTask:
     obj: ObjectSpec
     place_xyz: np.ndarray       # where the object's base centre should end up (z = support surface)
-    release_clearance: float = 0.02
+    release_clearance: float = 0.01
 
 
 class ScriptedPickPlace:
@@ -80,11 +116,15 @@ class ScriptedPickPlace:
 
     def act(self, ee_pos: np.ndarray) -> EEAction:
         goal, tol = self._goal()
-        delta = goal - ee_pos
-        dist = float(np.linalg.norm(delta))
-        step = delta if dist <= MAX_STEP else delta / dist * MAX_STEP
-        target = ee_pos + step
-        grip = 1.0 if self.phase in ("grasp", "lift", "transport", "lower") else 0.0
+        dist = float(np.linalg.norm(goal - ee_pos))
+        target = polar_step(ee_pos, goal, MAX_STEP, TRANSIT_Z)
+        w = 2 * jaw_half_extent(self.t.obj)
+        if self.phase in ("grasp", "lift", "transport", "lower"):
+            grip = 1.0
+        elif self.phase in ("release", "retreat"):
+            grip = gripper_cmd_for_opening(w + 0.02)     # open just enough: don't sweep neighbours
+        else:
+            grip = gripper_cmd_for_opening(w + 0.035)    # pre-grasp opening
         self.ticks += 1
         if self._last_ee is not None and np.linalg.norm(ee_pos - self._last_ee) < 0.001:
             self._stall += 1

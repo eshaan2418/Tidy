@@ -80,6 +80,7 @@ class TidyEnv:
         self._jq = [m.jnt_qposadr[mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_JOINT, j)] for j in ARM_JOINTS]
         self._fq = [m.jnt_qposadr[mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_JOINT, j)] for j in ("finger_l", "finger_r")]
         self._tcp = mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_SITE, "tcp")
+        self._hand = mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_BODY, "hand")
         self.all_objects = self.objects + self.distractors
         self._oq: dict[str, int] = {}
         self._ov: dict[str, int] = {}
@@ -88,6 +89,10 @@ class TidyEnv:
             self._oq[o.name] = m.jnt_qposadr[jid]
             self._ov[o.name] = m.jnt_dofadr[jid]
         self.obj_by_name = {o.name: o for o in self.all_objects}
+        self._weld = {o.name: mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_EQUALITY, f"grip_{o.name}")
+                      for o in self.all_objects}
+        self._obody = {o.name: mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_BODY, f"obj_{o.name}")
+                       for o in self.all_objects}
         self.fix_by_name = {f.name: f for f in self.fixtures}
         self.include_hand = include_hand
         # safety
@@ -99,6 +104,7 @@ class TidyEnv:
         self.q_cmd = HOME_Q.copy()
         self.g_cmd = 0.0
         self.attached: str | None = None
+        self._held_width = 0.0
         self._rel: tuple[np.ndarray, np.ndarray] | None = None
         self._renderers: dict[tuple[int, int], mujoco.Renderer] = {}
         self.step_count = 0
@@ -145,6 +151,7 @@ class TidyEnv:
         self.q_cmd = HOME_Q.copy()
         self.g_cmd = 0.0
         self.attached, self._rel = None, None
+        self.data.eq_active[:] = 0
         park = 0
         for o in self.all_objects:
             if o.name in placement.poses:
@@ -173,20 +180,47 @@ class TidyEnv:
     def _substep(self) -> None:
         mujoco.mj_step(self.model, self.data)
         self._sim_time += PHYS_DT
-        if self.attached is not None and self._rel is not None:
-            p, R = self.tcp_pose()
-            rp, rR = self._rel
-            name = self.attached
-            a = self._oq[name]
-            wp = p + R @ rp
-            wR = R @ rR
-            from common.geometry import mat_to_quat
+        # stabilisation (D-008): clamp horizontal / angular speed of free objects. Squeezing a light object
+        # between a stiff servo and the table otherwise ejects it at unphysical speed (MuJoCo soft contacts).
+        for v in self._ov.values():
+            h = self.data.qvel[v:v + 2]
+            n = float(np.hypot(h[0], h[1]))
+            if n > 0.35:
+                self.data.qvel[v:v + 2] = h / n * 0.35
+            ang = self.data.qvel[v + 3:v + 6]
+            na = float(np.linalg.norm(ang))
+            if na > 10.0:
+                self.data.qvel[v + 3:v + 6] = ang / na * 10.0
 
-            self.data.qpos[a:a + 3] = wp
-            self.data.qpos[a + 3:a + 7] = mat_to_quat(wR)
-            v = self._ov[name]
-            self.data.qvel[v:v + 6] = 0
-            mujoco.mj_forward(self.model, self.data)
+    def _attach(self, name: str) -> None:
+        """Activate the hand->object weld at the current relative pose (D-003, revised by D-008)."""
+        hb, ob = self._hand, self._obody[name]
+        R1 = self.data.xmat[hb].reshape(3, 3)
+        R2 = self.data.xmat[ob].reshape(3, 3)
+        rp = R1.T @ (self.data.xpos[ob] - self.data.xpos[hb])
+        q = np.zeros(4)
+        mujoco.mju_mat2Quat(q, (R1.T @ R2).flatten())
+        self._held_width = self._jaw_width(name)
+        e = self._weld[name]
+        self.model.eq_data[e, 0:3] = 0.0
+        self.model.eq_data[e, 3:6] = rp
+        self.model.eq_data[e, 6:10] = q
+        self.model.eq_data[e, 10] = 1.0
+        self.data.eq_active[e] = 1
+        self.attached = name
+
+    def _jaw_width(self, name: str) -> float:
+        o = self.obj_by_name[name]
+        _, R = self.tcp_pose()
+        jaw_yaw = float(np.arctan2(R[1, 1], R[0, 1]))
+        if o.kind == "cylinder" and not self.obj_upright(name):
+            return 2 * o.size[1]
+        return 2 * o.half_extent_along(self.obj_pose(name)[1], jaw_yaw)
+
+    def _detach(self) -> None:
+        if self.attached is not None:
+            self.data.eq_active[self._weld[self.attached]] = 0
+        self.attached, self._rel = None, None
 
     def grasp_check(self, name: str) -> bool:
         """Geometric jaw-containment test for attaching `name` (see module docstring)."""
@@ -228,29 +262,22 @@ class TidyEnv:
                 self.safety_events.append(f"{e.kind}:{e.detail}")
         if not status.sent:
             self.safety_events.append(status.reason)
-        prev_open = self.opening()
-        closing = self.g_cmd > 0.5
         info = {"status": status.reason, "ik_feasible": res.feasible, "ik_pos_err": res.pos_error,
                 "grasped": None, "released": None}
+        target_open = (1.0 - self.g_cmd) * GEOM.max_opening
         for k in range(N_SUB):
             self._apply_ctrl()
             self._substep()
-            if self.attached is None and closing and k % 5 == 4:
-                if self.opening() < prev_open - 0.002 or self.opening() < GEOM.max_opening - 0.01:
-                    for o in self.objects:
-                        if self.grasp_check(o.name):
-                            p, R = self.tcp_pose()
-                            op = self.data.qpos[self._oq[o.name]:self._oq[o.name] + 3].copy()
-                            from common.geometry import quat_to_mat
-
-                            oR = quat_to_mat(self.data.qpos[self._oq[o.name] + 3:self._oq[o.name] + 7])
-                            self._rel = (R.T @ (op - p), R.T @ oR)
-                            self.attached = o.name
-                            info["grasped"] = o.name
-                            break
-            if self.attached is not None and not closing:
+            if self.attached is None and k % 5 == 4 and target_open < self.opening() - 0.003:
+                for o in self.objects:
+                    # the command must squeeze the object (target narrower than the object) to hold it
+                    if target_open < self._jaw_width(o.name) - 0.004 and self.grasp_check(o.name):
+                        self._attach(o.name)
+                        info["grasped"] = o.name
+                        break
+            if self.attached is not None and target_open > self._held_width + 0.004:
                 info["released"] = self.attached
-                self.attached, self._rel = None, None
+                self._detach()
         self.step_count += 1
         return info
 

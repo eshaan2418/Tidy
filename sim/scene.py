@@ -22,8 +22,8 @@ MAT_X = (0.10, 0.26)
 MAT_Y = (-0.13, 0.13)
 GRID_ROWS = "ABCDE"
 GRID_COLS = 6
-MARKER_POS = [(0.085, -0.145), (0.085, 0.145), (0.275, 0.145), (0.275, -0.145)]  # mat corners, table frame
-MARKER_HALF = 0.008
+MARKER_POS = [(0.075, -0.150), (0.075, 0.150), (0.285, 0.150), (0.285, -0.150)]  # mat corners, table frame
+MARKER_HALF = 0.011
 
 
 def hsv(h_deg: float, s: float = 0.9, v: float = 0.85) -> tuple[float, float, float]:
@@ -79,8 +79,7 @@ class FixtureSpec:
 
     @property
     def surface_z(self) -> float:
-        if self.kind == "bin":
-            return 0.004
+        # target height of the object's base at release: bins = rim (drop in), shelf/tray = top surface
         return self.height
 
 
@@ -88,9 +87,9 @@ class FixtureSpec:
 LIB: dict[str, ObjectSpec] = {
     "pen": ObjectSpec("pen", "capsule", (0.007, 0.050), "blue", 0.015, "pen"),
     "cup": ObjectSpec("cup", "cylinder", (0.026, 0.035), "red", 0.06, "cup"),
-    "tape": ObjectSpec("tape", "cylinder", (0.033, 0.015), "orange", 0.05, "tape"),
+    "tape": ObjectSpec("tape", "cylinder", (0.030, 0.015), "orange", 0.05, "tape"),
     "box": ObjectSpec("box", "box", (0.040, 0.018, 0.022), "green", 0.05, "box"),
-    "can": ObjectSpec("can", "cylinder", (0.024, 0.040), "cyan", 0.08, "can"),
+    "can": ObjectSpec("can", "cylinder", (0.024, 0.030), "cyan", 0.08, "can"),
     "block_red": ObjectSpec("block_red", "box", (0.018, 0.018, 0.018), "red", 0.03, "block"),
     "block_blue": ObjectSpec("block_blue", "box", (0.018, 0.018, 0.018), "blue", 0.03, "block"),
     "block_red2": ObjectSpec("block_red2", "box", (0.018, 0.018, 0.018), "red", 0.03, "block"),
@@ -98,16 +97,16 @@ LIB: dict[str, ObjectSpec] = {
     "plate_blue": ObjectSpec("plate_blue", "cylinder", (0.034, 0.010), "blue", 0.04, "plate"),
     "plate_red": ObjectSpec("plate_red", "cylinder", (0.030, 0.010), "red", 0.04, "plate"),
     "plate_yellow": ObjectSpec("plate_yellow", "cylinder", (0.026, 0.010), "yellow", 0.04, "plate"),
-    "snack_box": ObjectSpec("snack_box", "box", (0.030, 0.016, 0.035), "purple", 0.05, "box"),
+    "snack_box": ObjectSpec("snack_box", "box", (0.030, 0.016, 0.028), "purple", 0.05, "box"),
     "eraser": ObjectSpec("eraser", "box", (0.022, 0.012, 0.010), "yellow", 0.02, "box"),
 }
 
 FIXTURES: dict[str, FixtureSpec] = {
-    "bin": FixtureSpec("bin", "bin", (0.06, 0.205), (0.055, 0.045), 0.045),
-    "bin_left": FixtureSpec("bin_left", "bin", (0.06, 0.205), (0.055, 0.045), 0.045, (0.30, 0.30, 0.55)),
-    "bin_right": FixtureSpec("bin_right", "bin", (0.06, -0.205), (0.055, 0.045), 0.045, (0.55, 0.30, 0.30)),
-    "shelf": FixtureSpec("shelf", "shelf", (0.075, 0.205), (0.065, 0.050), 0.045, (0.45, 0.40, 0.35)),
-    "tray": FixtureSpec("tray", "tray", (0.065, -0.195), (0.05, 0.045), 0.008, (0.25, 0.45, 0.30)),
+    "bin": FixtureSpec("bin", "bin", (0.04, 0.228), (0.075, 0.060), 0.045),
+    "bin_left": FixtureSpec("bin_left", "bin", (0.04, 0.228), (0.075, 0.060), 0.045, (0.30, 0.30, 0.55)),
+    "bin_right": FixtureSpec("bin_right", "bin", (0.04, -0.228), (0.075, 0.060), 0.045, (0.55, 0.30, 0.30)),
+    "shelf": FixtureSpec("shelf", "shelf", (0.04, 0.228), (0.075, 0.060), 0.025, (0.45, 0.40, 0.35)),
+    "tray": FixtureSpec("tray", "tray", (0.065, -0.215), (0.05, 0.045), 0.008, (0.25, 0.45, 0.30)),
 }
 
 
@@ -224,9 +223,9 @@ def build_xml(spec: SceneSpec) -> str:
     diff = " ".join(f"{0.7*ls*t:.3f}" for t in tint)
     amb = " ".join(f"{0.35*ls*t:.3f}" for t in tint)
     mat_cx, mat_cy = (MAT_X[0] + MAT_X[1]) / 2, (MAT_Y[0] + MAT_Y[1]) / 2
-    mat_hx, mat_hy = (MAT_X[1] - MAT_X[0]) / 2 + 0.02, (MAT_Y[1] - MAT_Y[0]) / 2 + 0.02
+    mat_hx, mat_hy = (MAT_X[1] - MAT_X[0]) / 2 + 0.04, (MAT_Y[1] - MAT_Y[0]) / 2 + 0.035
     markers = "".join(
-        f'<geom type="box" size="{MARKER_HALF} {MARKER_HALF} 0.0005" pos="{mx} {my} 0.0015" rgba="0.05 0.05 0.05 1" '
+        f'<geom type="box" size="{MARKER_HALF} {MARKER_HALF} 0.0005" pos="{mx} {my} 0.0015" rgba="0.01 0.01 0.01 1" '
         f'contype="0" conaffinity="0"/>' for mx, my in MARKER_POS)
     objs = "".join(_object_xml(o, i) for i, o in enumerate(spec.objects + spec.distractors))
     fixtures = "".join(_fixture_xml(f) for f in spec.fixtures)
@@ -236,6 +235,8 @@ def build_xml(spec: SceneSpec) -> str:
     n_act += '<position name="a_finger_l" joint="finger_l" kp="300" kv="8" forcerange="-8 8"/>'
     n_act += '<position name="a_finger_r" joint="finger_r" kp="300" kv="8" forcerange="-8 8"/>'
     hand = _hand_xml() if spec.include_hand else ""
+    welds = "".join(f'<weld name="grip_{o.name}" body1="hand" body2="obj_{o.name}" active="false" solref="0.01 1"/>'
+                    for o in spec.objects + spec.distractors)
     return f"""
 <mujoco model="tidy_workspace">
   <compiler angle="radian" autolimits="true"/>
@@ -246,7 +247,7 @@ def build_xml(spec: SceneSpec) -> str:
     <geom solref="0.004 1" solimp="0.95 0.99 0.001" friction="1.0 0.02 0.002"/>
     <default class="arm"><geom contype="1" conaffinity="0" group="1" mass="0.05"/></default>
     <default class="finger"><geom contype="2" conaffinity="2" friction="1.5 0.05 0.002" mass="0.02"/></default>
-    <default class="object"><geom contype="2" conaffinity="3" condim="4"/></default>
+    <default class="object"><geom contype="2" conaffinity="3" condim="6" friction="1.0 0.02 0.004"/></default>
     <default class="fixture"><geom contype="2" conaffinity="3"/></default>
     <default class="hand"><geom contype="0" conaffinity="0" group="2"/></default>
   </default>
@@ -262,5 +263,6 @@ def build_xml(spec: SceneSpec) -> str:
     {objs}
     {hand}
   </worldbody>
+  <equality>{welds}</equality>
   <actuator>{n_act}</actuator>
 </mujoco>"""
