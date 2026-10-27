@@ -136,8 +136,9 @@ class RecoveryHook:
     """step_hook for eval.runner.run_episode: retry a failed object step up to `max_retries` times."""
 
     def __init__(self, chore, perceiver, detector_path: str | None = None, detector: FailureDetector | None = None,
-                 max_retries: int = 2):
+                 max_retries: int = 2, oracle: bool = False):
         self.chore = chore
+        self.oracle = oracle  # upper bound: simulator truth instead of the learned detector (never deployable)
         self.perceiver = perceiver
         self.det = detector or FailureDetector.load(Path(detector_path))  # type: ignore[arg-type]
         self.max_retries = max_retries
@@ -146,6 +147,8 @@ class RecoveryHook:
     def __call__(self, env, rec) -> str:
         x = step_features(rec, env.obj_by_name[rec.obj])
         failed, phase, p = self.det.judge(x)
+        if self.oracle:
+            failed, phase = (not rec.placed), ("grasp" if not rec.grasped else "place")
         entry = {"obj": rec.obj, "attempt": rec.attempt, "flagged": bool(failed), "phase": phase, "p_ok": p,
                  "true_placed": bool(rec.placed)}
         if failed and rec.attempt < self.max_retries:

@@ -19,3 +19,5 @@ checkpoints/
 .env
 *.key
 MUJOCO_LOG.TXT
+logs/
+data/sessions/DRYRUN.json

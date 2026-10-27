@@ -175,3 +175,54 @@ class OverheadPerceiver:
                 best_cost, best_perm = cost, perm
         assert best_perm is not None
         return {m: (comps[ci][0], comps[ci][1]) for m, ci in zip(members, best_perm)}
+
+
+@dataclass
+class RayPlanePerceiver(OverheadPerceiver):
+    """Depth-free variant for the real robot's RGB overhead webcam: every colour component is back-projected by
+    intersecting pixel rays with the plane at the object's known top height (class + size come from the object
+    library). `camera` is the calibrated model (hardware/camera_calib.py); in sim it is the MuJoCo camera."""
+    camera: CameraModel | None = None
+
+    def _camera(self, env) -> CameraModel:
+        if self.camera is None:
+            self.camera = CameraModel.from_mujoco(env.model, env.data, "overhead")
+        return self.camera
+
+    def _components(self, env, rgb: np.ndarray, depth: np.ndarray | None, color: str, height: float):
+        hsv = cv2.cvtColor(rgb, cv2.COLOR_RGB2HSV)
+        m = hue_mask(hsv, self.hue_cal.get(color, HUES[color]), 8, 90, 35).astype(np.uint8)
+        n, lab, st, _ = cv2.connectedComponentsWithStats(m, connectivity=8)
+        cam = self._camera(env)
+        out = []
+        for j in range(1, n):
+            if st[j, cv2.CC_STAT_AREA] < self.min_px:
+                continue
+            vs, us = np.nonzero(lab == j)
+            rays = np.stack([(us - cam.K[0, 2]) / cam.K[0, 0], (vs - cam.K[1, 2]) / cam.K[1, 1], np.ones(len(us))], 1)
+            d_w = (cam.R.T @ rays.T).T                    # ray directions in the world frame
+            o_w = -cam.R.T @ cam.t                        # camera centre
+            s = (height - o_w[2]) / d_w[:, 2]
+            pw = o_w + s[:, None] * d_w + self.calib_offset
+            xy = pw[:, :2].mean(axis=0)
+            yaw = 0.0
+            if len(pw) >= 5:
+                c = pw[:, :2] - xy
+                _, V = np.linalg.eigh(c.T @ c)
+                yaw = float(np.arctan2(V[1, 1], V[0, 1]))
+            out.append((np.array([xy[0], xy[1], height / 2]), float(wrap_half_pi(yaw)), int(len(us))))
+        return out
+
+    def perceive(self, env, names: list[str]) -> dict[str, tuple[np.ndarray, float]]:
+        # identical to the RGB-D perceiver except that no depth image is requested
+        orig = env.render
+
+        def rgb_only(camera="overhead", width=W, height=H, depth=False):
+            img = orig(camera, width, height)
+            return (img, None) if depth else img
+
+        env.render = rgb_only
+        try:
+            return super().perceive(env, names)
+        finally:
+            env.render = orig

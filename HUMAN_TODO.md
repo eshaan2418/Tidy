@@ -41,11 +41,27 @@ Per-chore instructions:
 - **stacking**: leave the blue plate where it is. Stack red on blue, then yellow on red.
 - **held-out**: filmed only during the M8 app test (see H8).
 
-## H6. Teleop baseline demos (equal human time) — awaiting-human (needs leader arm)
-Instructions are generated in M2 (`SESSION_QUEUE.md` session T1). The time budget equals your logged desk_clearing filming time.
+## H6. Label a small real-video subset for the M3 accuracy check (~40 min) — awaiting-human (after H5)
+The sim-stage perception metrics use simulator ground truth. Real accuracy needs your labels on **6 desk_clearing clips**:
+1. Open each clip in any player that shows the frame time (e.g., VLC, View → Time display in ms).
+2. For every pick-place, write one row to `data/private/labels/desk_clearing.csv`: `clip,object,grasp_s,release_s,start_cell,end` where `grasp_s` is when the fingers first close on the object, `release_s` is when they open over the goal, and `end` is `bin` / the goal.
+3. With a ruler, measure 3 resting objects per clip against the printed mat grid (cm from the nearest cell centre). This gives the object-position error ground truth.
+4. Run `python -m bench.m3_perception_real` (it is written once the clips exist, since the reader depends on your phone's export format). It reports event F1, boundary error and position error, the same metrics as the sim table.
 
-## H7. Evaluation sessions — awaiting-human
-See `SESSION_QUEUE.md`. Each session lists its checkpoint, placement cards, trial count, and expected duration.
+## H7. Teleop baseline demos at equal human time (~10–15 min) — awaiting-human (needs the leader arm)
+1. Read your logged desk_clearing filming minutes in `data/private/human_time.csv`. That total (filming + setup + resets) is your **teleop budget**. Start a timer.
+2. Record leader-arm demos with LeRobot's recording command for your LeRobot version (`lerobot-record` / `python -m lerobot.record`): robot = SO-101 follower, teleop = SO-101 leader, fps = 10, task = "put every item into the bin". Save to `data/robot/teleop_desk_real/`.
+3. Before each demo, set up the next teleop placement card: `python -c "from eval.placements import training_cards as t; [print(i, c.human_text()) for i, c in enumerate(t('desk_clearing','teleop',30))]"`.
+4. Stop as soon as the timer reaches the budget. **Every** minute counts, including resets, failed demos and re-takes.
+5. Log the minutes, then ask the agent to convert the dataset (`policies/data.py` spec) and train `teleop_1x` with the identical config used for the video policy.
 
-## H8. Teach the held-out chore with the app (M8) — awaiting-human
-`python -m scripts.tidy_app` → "New chore". Follow only the on-screen instructions and log your minutes.
+## H8. Evaluation sessions — awaiting-human
+See `SESSION_QUEUE.md`. Each session lists its checkpoints, placement cards, trial count and expected duration. All sessions run through `python scripts/supervised_session.py eval --session <id>`. Before each session:
+- recalibrate the overhead camera, ~3 min. Lay the ChArUco board flat with its origin at the A1 corner and its x-axis pointing away from the robot, then run `python -m hardware.camera_calib extrinsics --cam <idx>` followed by `python -m hardware.camera_calib overhead --cam <idx>`. Intrinsics are needed once only: `... intrinsics --cam <idx>`;
+- click each object once in the hue calibration: `python -m hardware.camera_calib hues --cam <idx>`;
+- review `SAFETY_LOG.md`. The script refuses to start while any entry is unresolved.
+
+During the session, score each object honestly when asked (y/n). Afterwards, review 20 % of the trial videos (`data/private/sessions/<id>/`, chosen by the script) and correct any score you got wrong.
+
+## H9. Teach the held-out chore with the app (M8, ~30 min) — awaiting-human
+Follow **only** the app, starting with `python scripts/teach.py new tray_heldout`. It tells you every next command: guide → film → upload → process → train → try (a supervised session) → requests → record → try. The app logs your minutes. Report anything confusing, and the agent will fix the app.

@@ -1,9 +1,10 @@
 PY ?= .venv/bin/python
 CHORE ?= desk_clearing
+SESSION ?= S3
 export PYTHONPATH := $(CURDIR)
 export MPLBACKEND := Agg
 
-.PHONY: setup test safety-test lint typecheck ci sim-smoke sim-eval process-videos train queue-session reproduce-quick reproduce-full paper check-claims scan
+.PHONY: teach-demo mat figures setup test safety-test lint typecheck ci sim-smoke sim-eval process-videos train queue-session reproduce-quick reproduce-full paper check-claims scan
 
 setup:
 	uv venv .venv -p 3.12 && uv pip install -p $(PY) -r requirements.lock && uv pip install -p $(PY) -e . --no-deps
@@ -26,7 +27,7 @@ sim-smoke:
 ci: lint typecheck test sim-smoke
 
 sim-eval:
-	$(PY) -m bench.run_all --stage sim --chore $(CHORE)
+	$(PY) -m bench.m4_video_vs_teleop --chore $(CHORE)
 
 process-videos:
 	$(PY) -m perception.pipeline --chore $(CHORE)
@@ -35,7 +36,16 @@ train:
 	$(PY) -m policies.train --chore $(CHORE)
 
 queue-session:
-	$(PY) -m eval.queue --chore $(CHORE)
+	$(PY) -m eval.queue --chore $(CHORE) --session $(SESSION)
+
+teach-demo:
+	$(PY) scripts/teach.py walkthrough tray_heldout --sim
+
+mat:
+	$(PY) -m hardware.make_mat
+
+figures:
+	$(PY) -m bench.make_figures
 
 reproduce-quick:
 	$(PY) -m bench.reproduce --quick
@@ -44,7 +54,7 @@ reproduce-full:
 	$(PY) -m bench.reproduce --full
 
 paper:
-	$(PY) -m bench.make_figures && $(PY) -m bench.check_claims
+	$(PY) -m bench.make_figures && $(PY) -m bench.make_report && $(PY) -m bench.check_claims
 
 check-claims:
 	$(PY) -m bench.check_claims

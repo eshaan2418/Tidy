@@ -41,7 +41,7 @@ class PolicyAgent:
 
     def begin_step(self, obj: ObjectSpec, obj_pos: np.ndarray, obj_yaw: float, goal: np.ndarray) -> None:
         self._hist, self._queue, self._t = [], [], 0
-        self.trace.append({"obj": obj.name, "disagree": [], "spread": []})
+        self.trace.append({"obj": obj.name, "disagree": [], "spread": [], "phase": []})
 
     def _chunks(self, o: np.ndarray) -> np.ndarray:
         """(members, K, ACT_DIM) de-normalised chunks."""
@@ -75,6 +75,7 @@ class PolicyAgent:
             ch = self._chunks(o)
             if len(ch) > 1:
                 self.trace[-1]["disagree"].append(float(np.linalg.norm(ch[:, 0, :3].std(axis=0)) * DELTA_SCALE))
+                self.trace[-1]["phase"].append("place" if view.grip_cmd > 0.5 else "pick")
             mean = self._to_abs(ch.mean(axis=0), view.ee_pos)
             self._hist.append((self._t, mean))
             K = mean.shape[0]
@@ -88,6 +89,7 @@ class PolicyAgent:
                 if len(ch) > 1:
                     self.trace[-1]["disagree"].append(
                         float(np.linalg.norm(ch[:, 0, :3].std(axis=0)) * DELTA_SCALE))
+                    self.trace[-1]["phase"].append("place" if view.grip_cmd > 0.5 else "pick")
                 self._queue = list(self._to_abs(ch.mean(axis=0), view.ee_pos)[: self.dp_horizon])
             a = self._queue.pop(0)
         self._t += 1

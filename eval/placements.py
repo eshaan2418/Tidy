@@ -127,6 +127,37 @@ def sample_card(chore: ChoreSpec, seed: int, split: str, cells_allowed: list[str
     raise RuntimeError(f"could not sample a collision-free placement for {chore.name} seed={seed}")
 
 
+def add_clutter(card: PlacementCard, names: list[str], seed: int,
+                cells_allowed: list[str] | None = None) -> PlacementCard:
+    """Copy of `card` with extra distractor objects (library names) placed on free mat cells (M7 clutter test).
+    Collision-free w.r.t. the card's objects and the chore's fixtures; the card's own poses are unchanged."""
+    chore = CHORES[card.chore]
+    rng = np.random.default_rng(seed)
+    poses = dict(card.placement.poses)
+    cells = dict(card.cells)
+    lib = {n: (card.subs or {}).get(n, n) for n in poses}
+    for d in names:
+        for _ in range(500):
+            cell = str(rng.choice(cells_allowed or ALL_CELLS))
+            cx, cy = cell_center(cell)
+            x, y = cx + rng.uniform(-0.008, 0.008), cy + rng.uniform(-0.008, 0.008)
+            r_d = footprint_radius(d)
+            if any((abs(x - f.pos[0]) < f.half[0] + r_d + 0.012) and (abs(y - f.pos[1]) < f.half[1] + r_d + 0.012)
+                   for f in chore.fixture_specs()):
+                continue
+            if any(np.hypot(x - mx, y - my) < r_d + footprint_radius(lib.get(m, m)) + 0.012
+                   for m, (mx, my, _) in poses.items()):
+                continue
+            poses[d] = (float(x), float(y), float(np.deg2rad(rng.uniform(0, 180))))
+            cells[d] = cell
+            lib[d] = d
+            break
+        else:
+            raise RuntimeError(f"no room for distractor {d}")
+    return PlacementCard(card.chore, card.seed, cells, Placement(poses), card.split + "+clutter", card.lighting,
+                         card.subs)
+
+
 # ------------------------------------------------------------------------------------- frozen protocol
 N_EVAL = {"eval_seen": 40, "eval_unseen_place": 40, "eval_unseen_obj": 20, "eval_lighting": 20}
 

@@ -115,25 +115,34 @@ def video_segments(chore: str, n: int, variant: str = "full", offset: int = 0, n
 
 
 # ------------------------------------------------------------------------------------------ teleop data
+OPERATORS = {
+    "default": {},
+    # sensitivity: a faster, more precise operator (practised with the leader arm)
+    "fast": {"track_sigma": 0.0015, "pos_judgement_sigma": 0.002, "yaw_judgement_sigma": float(np.deg2rad(3)),
+             "speed_range": (0.85, 1.0), "hesitate_prob": 0.1},
+}
+
+
 def _teleop_episode(args):
-    chore_name, card_json, seed = args
-    from sim.teleop import TeleopAgent
+    chore_name, card_json, seed, operator = args
+    from sim.teleop import OperatorModel, TeleopAgent
 
     chore = CHORES[chore_name]
     card = PlacementCard.from_json(card_json)
     env = make_env(chore, card)
-    agent = TeleopAgent(env, seed=seed)   # the operator acts on the true scene (+ judgement noise)
+    # the operator acts on the true scene (+ judgement noise)
+    agent = TeleopAgent(env, OperatorModel(**OPERATORS[operator]), seed=seed)
     # recorded observations come from the robot's own camera, exactly as they would on the real robot
     res = run_episode(chore, card, agent, OverheadPerceiver(), env=env, record=True)
     env.close()
     return res, card_json
 
 
-def teleop_data(chore: str, budget_s: float, seed: int = 0, max_demos: int = 40):
+def teleop_data(chore: str, budget_s: float, seed: int = 0, max_demos: int = 40, operator: str = "default"):
     """Simulated leader-arm demos on `teleop` cards until the human-time budget is used up (Rule 6).
     Returns (segments of successfully placed object steps, ledger, episodes, inferred program)."""
     cards = training_cards(chore, "teleop", max_demos, offset=1000 * seed)
-    jobs = [(chore, c.to_json(), seed * 1000 + i) for i, c in enumerate(cards)]
+    jobs = [(chore, c.to_json(), seed * 1000 + i, operator) for i, c in enumerate(cards)]
     with ProcessPoolExecutor(max_workers=WORKERS) as ex:
         outs = list(ex.map(_teleop_episode, jobs))
     L = HumanLedger()
@@ -279,11 +288,21 @@ def _eval_one(args) -> dict:
         hook = RecoveryHook(chore, perc, **{k: v for k, v in hook_kw.items() if k != "distractors"})
     res = run_episode(chore, card, agent, perc, program=program, order=order, env=env, step_hook=hook)
     out = episode_summary(res)
-    out["uncertainty"] = [{"obj": t["obj"], "disagree": float(np.mean(t["disagree"])) if t["disagree"] else None,
-                           "spread": float(np.mean(t["spread"])) if t["spread"] else None} for t in agent.trace]
+    out["uncertainty"] = [_trace_summary(t) for t in agent.trace]
     if hook is not None:
         out["recovery"] = hook.log
     env.close()
+    return out
+
+
+def _trace_summary(t: dict) -> dict:
+    d = np.array(t["disagree"]) if t["disagree"] else np.zeros(0)
+    ph = np.array(t.get("phase", []))
+    out = {"obj": t["obj"], "disagree": float(d.mean()) if len(d) else None,
+           "spread": float(np.mean(t["spread"])) if t["spread"] else None}
+    for p in ("pick", "place"):
+        m = d[ph == p] if len(ph) == len(d) and len(d) else np.zeros(0)
+        out[f"disagree_{p}"] = float(m.mean()) if len(m) else None
     return out
 
 
@@ -349,3 +368,146 @@ def cmdline() -> str:
 
 
 _ = object_at_goal
+
+
+# ------------------------------------------------------------------------------------------ auto-scoring + practice
+def auto_placed(chore: ChoreSpec, rec, program: InferredProgram) -> bool:
+    """Robot-side success estimate for one object step from the overhead camera only (no simulator GT): the
+    perceived final object position against the perceived goal. Used to filter self-practice data."""
+    if rec.final_perceived is None or rec.goal is None or rec.obj not in program.program:
+        return False
+    fp, g = rec.final_perceived, rec.goal
+    kind, name = program.program[rec.obj].landmark.split(":", 1)
+    if kind == "fixture" and FIXTURES[name].kind == "bin":
+        return bool(FIXTURES[name].contains_xy(fp[:2], margin=0.005))
+    return bool(np.linalg.norm(fp[:2] - g[:2]) < 0.02 and fp[2] > g[2] - 0.005)
+
+
+def _practice_episode(args) -> dict:
+    chore_name, card_json, program, order, seed, prog_obj = args
+    from policies.agent import PolicyAgent
+
+    chore = CHORES[chore_name]
+    card = PlacementCard.from_json(card_json)
+    agent = PolicyAgent(_WORKER_STATE["pols"], seed=seed, **_WORKER_STATE["kw"])
+    env = make_env(chore, card)
+    res = run_episode(chore, card, agent, OverheadPerceiver(), program=program, order=order, env=env, record=True)
+    steps = []
+    for s in res.steps:
+        steps.append({"obj": s.obj, "obs": np.array(s.obs), "act": np.array(s.act),
+                      "auto_ok": auto_placed(chore, s, prog_obj), "true_ok": bool(s.placed),
+                      "ticks": s.ticks + s.pre_ticks})
+    env.close()
+    return {"steps": steps, "ticks": res.ticks, "success": bool(res.success), "seed": card.seed}
+
+
+def practice_data(chore: str, pols, program: InferredProgram, n_episodes: int, seed: int = 0,
+                  ledger: HumanLedger | None = None) -> tuple[list[Segment], HumanLedger, dict]:
+    """Supervised self-practice (sim stage): roll out the current policy on `practice` cards, keep object steps the
+    robot's own camera scores as successful, and charge the human for supervising (episode duration) and for
+    resetting the scene (RESET_S) -- Rule 5: practice is not free."""
+    cards = training_cards(chore, "practice", n_episodes, offset=1000 * seed)
+    jobs = [(chore, c.to_json(), program.program, program.order, 31 + i, program) for i, c in enumerate(cards)]
+    blobs = [p.checkpoint_bytes() for p in pols]
+    with ProcessPoolExecutor(max_workers=WORKERS, initializer=_init_worker, initargs=(blobs, {})) as ex:
+        outs = list(ex.map(_practice_episode, jobs))
+    L = ledger or HumanLedger()
+    segs: list[Segment] = []
+    agree, n = 0, 0
+    for o in outs:
+        L.add("practice_supervision", o["ticks"] * 0.1)
+        L.add("practice_reset", RESET_S)
+        for s in o["steps"]:
+            n += 1
+            agree += int(s["auto_ok"] == s["true_ok"])
+            if s["auto_ok"] and len(s["obs"]) > 3:
+                segs.append(Segment(s["obs"], s["act"], "practice", s["obj"], {"card": o["seed"]}))
+    stats = {"episodes": n_episodes, "steps": n, "kept_steps": len(segs), "auto_vs_true_agreement": agree / max(1, n),
+             "practice_success": float(np.mean([o["success"] for o in outs])) if outs else 0.0}
+    return segs, L, stats
+
+
+# ------------------------------------------------------------------------------------------ condition runner
+@dataclass
+class Condition:
+    """One trained-and-evaluated configuration. `segs`/`program` are the method's own data and inferred task."""
+    name: str
+    chore: str
+    seed: int
+    segs: list[Segment]
+    program: InferredProgram | None
+    ledger: HumanLedger
+    cfg: object                                  # policies.train.TrainConfig
+    pretrain: list[Segment] | None = None
+    n_members: int = 1
+    agent_kw: dict = field(default_factory=dict)
+    meta: dict = field(default_factory=dict)
+
+
+def ckey(c: Condition) -> str:
+    return f"{c.name}@{c.seed}"
+
+
+def train_conditions(conds: list[Condition]) -> dict[str, list]:
+    """Train every condition (all ensemble members) in one parallel batch; save checkpoints; return policies
+    keyed by `ckey` (name@seed)."""
+    from policies.train import ensemble_jobs, train_many
+
+    jobs, owners = [], []
+    for c in conds:
+        js = ensemble_jobs(c.segs, c.cfg, c.n_members, c.pretrain)  # type: ignore[arg-type]
+        jobs += js
+        owners += [ckey(c)] * len(js)
+    pols = train_many(jobs)
+    out: dict[str, list] = {}
+    for name, p in zip(owners, pols):
+        out.setdefault(name, []).append(p)
+    for c in conds:
+        for i, p in enumerate(out[ckey(c)]):
+            p.save(f"{c.chore}__{c.name}__s{c.seed}__m{i}".replace("/", "_").replace(" ", "_"))
+    return out
+
+
+def evaluate_condition(c: Condition, pols, splits: tuple[str, ...] = ("eval_seen", "eval_unseen_place"),
+                       n: int | None = None, perceiver: str = "overhead", hook: str | None = None,
+                       hook_kw: dict | None = None) -> dict:
+    from policies.train import ensemble_hash
+
+    trials = {}
+    for sp in splits:
+        trials[sp] = evaluate(c.chore, pols, c.program, sp, n=n, perceiver=perceiver, agent_kw=c.agent_kw,
+                              hook=hook, hook_kw=hook_kw)
+    return {"name": c.name, "chore": c.chore, "seed": c.seed, "human": c.ledger.summary(),
+            "n_segments": len(c.segs), "checkpoint_hash": ensemble_hash(pols),
+            "dataset_hash": pols[0].data_hash, "meta": c.meta,
+            "program": {k: [v.landmark, list(v.offset)] for k, v in (c.program.program.items() if c.program else [])},
+            "order": c.program.order if c.program else None,
+            "splits": {sp: {"success": rate(t), "objects": object_rate(t), "trials": t} for sp, t in trials.items()}}
+
+
+def pooled(results: list[dict], split: str, key: str = "success") -> dict:
+    """Pool trials across seeds for one condition (each seed = independent data collection + training)."""
+    from eval.stats import wilson
+
+    if key == "success":
+        k = sum(r["splits"][split]["success"]["k"] for r in results)
+        n = sum(r["splits"][split]["success"]["n"] for r in results)
+    else:
+        k = sum(r["splits"][split]["objects"]["k"] for r in results)
+        n = sum(r["splits"][split]["objects"]["n"] for r in results)
+    p, lo, hi = wilson(k, n)
+    per_seed = [r["splits"][split][key if key == "success" else "objects"]["p"] for r in results]
+    return {"k": k, "n": n, "p": p, "lo": lo, "hi": hi, "per_seed": per_seed,
+            "human_min_mean": float(np.mean([r["human"]["total_min"] for r in results]))}
+
+
+def strip_trials(r: dict, keep_steps: bool = False) -> dict:
+    """Result payload without bulky per-tick data (per-trial outcomes are kept)."""
+    out = {**r, "splits": {}}
+    for sp, d in r["splits"].items():
+        ts = []
+        for t in d["trials"]:
+            t2 = {k: v for k, v in t.items() if keep_steps or k not in ("uncertainty",)}
+            ts.append(t2)
+        out["splits"][sp] = {**d, "trials": ts}
+    return out

@@ -1,0 +1,3438 @@
+{
+  "name": "sim/m4_video_vs_teleop_desk_clearing_quick",
+  "stage": "sim",
+  "timestamp": "2026-10-27T13:53:26.149298+00:00",
+  "git": {
+    "sha": "1598caff8366834e4d67e8809ac863c7d61e61a4",
+    "dirty": true
+  },
+  "hardware": {
+    "platform": "macOS-27.0.1-arm64-arm-64bit",
+    "machine": "arm64",
+    "python": "3.12.14",
+    "cpus": 18,
+    "torch": "2.14.1",
+    "cuda": false,
+    "mps": true,
+    "mujoco": "3.16.0"
+  },
+  "seed": 0,
+  "checkpoint_hash": null,
+  "dataset_hash": null,
+  "config": {
+    "chore": "desk_clearing",
+    "seeds": [
+      0
+    ],
+    "n_eval": 10,
+    "train": {
+      "kind": "act",
+      "K": 10,
+      "steps": 3000,
+      "batch": 128,
+      "lr": 0.001,
+      "weight_decay": 0.0001,
+      "aug_sigma": 0.0,
+      "absolute_obs": false,
+      "act_mode": "cumulative",
+      "obs_mode": "minimal",
+      "seed": 0,
+      "augment": 0,
+      "pretrain_steps": 0,
+      "extra": {}
+    }
+  },
+  "command": "python /Users/eshaan.kapooswalla/Tidy/bench/m4_video_vs_teleop.py --quick",
+  "videos": [],
+  "results": {
+    "summary": {
+      "video_10": {
+        "eval_seen": {
+          "success": {
+            "k": 4,
+            "n": 10,
+            "p": 0.4,
+            "lo": 0.16817758120350967,
+            "hi": 0.6873304525498135,
+            "per_seed": [
+              0.4
+            ],
+            "human_min_mean": 7.41
+          },
+          "objects": {
+            "k": 31,
+            "n": 40,
+            "p": 0.775,
+            "lo": 0.6249660359590695,
+            "hi": 0.8768404674532148,
+            "per_seed": [
+              0.775
+            ],
+            "human_min_mean": 7.41
+          }
+        },
+        "eval_unseen_place": {
+          "success": {
+            "k": 2,
+            "n": 10,
+            "p": 0.2,
+            "lo": 0.056680947980693314,
+            "hi": 0.5098431532792765,
+            "per_seed": [
+              0.2
+            ],
+            "human_min_mean": 7.41
+          },
+          "objects": {
+            "k": 29,
+            "n": 40,
+            "p": 0.725,
+            "lo": 0.5716474916687543,
+            "hi": 0.8389214656685692,
+            "per_seed": [
+              0.725
+            ],
+            "human_min_mean": 7.41
+          }
+        }
+      },
+      "teleop_1x": {
+        "eval_seen": {
+          "success": {
+            "k": 0,
+            "n": 10,
+            "p": 0.0,
+            "lo": 0.0,
+            "hi": 0.2775401687666166,
+            "per_seed": [
+              0.0
+            ],
+            "human_min_mean": 6.81
+          },
+          "objects": {
+            "k": 17,
+            "n": 40,
+            "p": 0.425,
+            "lo": 0.28509168524815875,
+            "hi": 0.5780519956394001,
+            "per_seed": [
+              0.425
+            ],
+            "human_min_mean": 6.81
+          }
+        },
+        "eval_unseen_place": {
+          "success": {
+            "k": 0,
+            "n": 10,
+            "p": 0.0,
+            "lo": 0.0,
+            "hi": 0.2775401687666166,
+            "per_seed": [
+              0.0
+            ],
+            "human_min_mean": 6.81
+          },
+          "objects": {
+            "k": 18,
+            "n": 40,
+            "p": 0.45,
+            "lo": 0.30705075280944694,
+            "hi": 0.6017117011155924,
+            "per_seed": [
+              0.45
+            ],
+            "human_min_mean": 6.81
+          }
+        }
+      }
+    },
+    "runs": [
+      {
+        "name": "video_10",
+        "chore": "desk_clearing",
+        "seed": 0,
+        "human": {
+          "total_min": 7.41,
+          "by_kind_min": {
+            "film": 4.08,
+            "reset": 3.33
+          }
+        },
+        "n_segments": 40,
+        "checkpoint_hash": "223261ffe4e1e3805803e6f8006e2bd1d99331291e368699e0164ecac5973054",
+        "dataset_hash": "a6bdcb35c16d26eccff99206eba269a9f2d42dc8a3b6436b993131530948f527",
+        "meta": {
+          "n_videos": 10,
+          "accepted": 10,
+          "variant": "full"
+        },
+        "program": {
+          "box": [
+            "fixture:bin",
+            [
+              -0.019171887116604065,
+              0.027123573099469455,
+              0.0
+            ]
+          ],
+          "cup": [
+            "fixture:bin",
+            [
+              -0.030708187584704373,
+              -0.040014781984605216,
+              0.0
+            ]
+          ],
+          "pen": [
+            "fixture:bin",
+            [
+              0.038432197231228774,
+              0.046703616829747364,
+              0.0
+            ]
+          ],
+          "tape": [
+            "fixture:bin",
+            [
+              0.037779391356393174,
+              -0.026126062053321585,
+              0.0
+            ]
+          ]
+        },
+        "order": null,
+        "splits": {
+          "eval_seen": {
+            "success": {
+              "k": 4,
+              "n": 10,
+              "p": 0.4,
+              "lo": 0.16817758120350967,
+              "hi": 0.6873304525498135
+            },
+            "objects": {
+              "k": 31,
+              "n": 40,
+              "p": 0.775,
+              "lo": 0.6249660359590695,
+              "hi": 0.8768404674532148
+            },
+            "trials": [
+              {
+                "seed": 1000000,
+                "split": "eval_seen",
+                "success": true,
+                "n_done": 4,
+                "n_total": 4,
+                "ticks": 333,
+                "per_object": {
+                  "pen": true,
+                  "cup": true,
+                  "tape": true,
+                  "box": true
+                },
+                "phase": {
+                  "reached": 1.0,
+                  "grasped": 1.0,
+                  "transported": 1.0,
+                  "placed": 1.0
+                },
+                "safety_events": [
+                  "workspace:tcp [0.132, 0.015, 0.008] outside workspace",
+                  "workspace:tcp [0.131, 0.015, 0.011] outside workspace",
+                  "workspace:tcp [0.133, 0.014, 0.012] outside workspace",
+                  "workspace:tcp [0.136, -0.076, 0.009] outside workspace",
+                  "workspace:tcp [0.136, -0.077, 0.01] outside workspace",
+                  "workspace:tcp [0.137, -0.078, 0.012] outside workspace",
+                  "workspace:tcp [0.138, -0.079, 0.013] outside workspace"
+                ],
+                "steps": [
+                  {
+                    "obj": "pen",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 54
+                  },
+                  {
+                    "obj": "cup",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 72
+                  },
+                  {
+                    "obj": "tape",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 86
+                  },
+                  {
+                    "obj": "box",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 108
+                  }
+                ]
+              },
+              {
+                "seed": 1000001,
+                "split": "eval_seen",
+                "success": false,
+                "n_done": 3,
+                "n_total": 4,
+                "ticks": 320,
+                "per_object": {
+                  "pen": true,
+                  "cup": true,
+                  "tape": true,
+                  "box": false
+                },
+                "phase": {
+                  "reached": 1.0,
+                  "grasped": 1.0,
+                  "transported": 1.0,
+                  "placed": 1.0
+                },
+                "safety_events": [
+                  "workspace:tcp [0.137, 0.138, 0.011] outside workspace",
+                  "workspace:tcp [0.185, -0.137, 0.012] outside workspace",
+                  "workspace:tcp [0.185, -0.136, 0.013] outside workspace",
+                  "workspace:tcp [0.185, -0.136, 0.013] outside workspace",
+                  "workspace:tcp [0.185, -0.135, 0.013] outside workspace",
+                  "workspace:tcp [0.185, -0.135, 0.012] outside workspace",
+                  "workspace:tcp [0.185, -0.135, 0.012] outside workspace"
+                ],
+                "steps": [
+                  {
+                    "obj": "cup",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 69
+                  },
+                  {
+                    "obj": "tape",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 56
+                  },
+                  {
+                    "obj": "box",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 74
+                  },
+                  {
+                    "obj": "pen",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 119
+                  }
+                ]
+              },
+              {
+                "seed": 1000002,
+                "split": "eval_seen",
+                "success": false,
+                "n_done": 2,
+                "n_total": 4,
+                "ticks": 716,
+                "per_object": {
+                  "pen": false,
+                  "cup": true,
+                  "tape": false,
+                  "box": true
+                },
+                "phase": {
+                  "reached": 0.75,
+                  "grasped": 0.5,
+                  "transported": 0.5,
+                  "placed": 0.5
+                },
+                "safety_events": [
+                  "workspace:tcp [0.123, -0.023, 0.01] outside workspace",
+                  "workspace:tcp [0.123, -0.023, 0.011] outside workspace",
+                  "workspace:tcp [0.124, -0.023, 0.01] outside workspace",
+                  "workspace:tcp [0.124, -0.024, 0.01] outside workspace",
+                  "workspace:tcp [0.125, -0.024, 0.011] outside workspace",
+                  "workspace:tcp [0.125, -0.024, 0.011] outside workspace",
+                  "workspace:tcp [0.126, -0.025, 0.011] outside workspace",
+                  "workspace:tcp [0.126, -0.025, 0.012] outside workspace"
+                ],
+                "steps": [
+                  {
+                    "obj": "pen",
+                    "attempt": 0,
+                    "reached": false,
+                    "grasped": false,
+                    "transported": false,
+                    "placed": false,
+                    "timeout": true,
+                    "ticks": 220
+                  },
+                  {
+                    "obj": "cup",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 61
+                  },
+                  {
+                    "obj": "tape",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": false,
+                    "transported": false,
+                    "placed": false,
+                    "timeout": true,
+                    "ticks": 220
+                  },
+                  {
+                    "obj": "box",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 213
+                  }
+                ]
+              },
+              {
+                "seed": 1000003,
+                "split": "eval_seen",
+                "success": true,
+                "n_done": 4,
+                "n_total": 4,
+                "ticks": 303,
+                "per_object": {
+                  "pen": true,
+                  "cup": true,
+                  "tape": true,
+                  "box": true
+                },
+                "phase": {
+                  "reached": 1.0,
+                  "grasped": 1.0,
+                  "transported": 1.0,
+                  "placed": 1.0
+                },
+                "safety_events": [
+                  "workspace:tcp [0.11, -0.0, 0.011] outside workspace",
+                  "workspace:tcp [0.111, -0.003, 0.012] outside workspace",
+                  "workspace:tcp [0.197, 0.142, 0.009] outside workspace",
+                  "workspace:tcp [0.199, 0.14, 0.009] outside workspace",
+                  "workspace:tcp [0.197, 0.137, 0.009] outside workspace",
+                  "workspace:tcp [0.207, 0.145, 0.012] outside workspace",
+                  "workspace:tcp [0.207, 0.146, 0.013] outside workspace"
+                ],
+                "steps": [
+                  {
+                    "obj": "pen",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 56
+                  },
+                  {
+                    "obj": "tape",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 69
+                  },
+                  {
+                    "obj": "cup",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 77
+                  },
+                  {
+                    "obj": "box",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 92
+                  }
+                ]
+              },
+              {
+                "seed": 1000004,
+                "split": "eval_seen",
+                "success": false,
+                "n_done": 3,
+                "n_total": 4,
+                "ticks": 469,
+                "per_object": {
+                  "pen": false,
+                  "cup": true,
+                  "tape": true,
+                  "box": true
+                },
+                "phase": {
+                  "reached": 0.75,
+                  "grasped": 0.75,
+                  "transported": 0.75,
+                  "placed": 0.75
+                },
+                "safety_events": [
+                  "workspace:tcp [0.109, 0.026, 0.012] outside workspace",
+                  "workspace:tcp [0.111, 0.026, 0.011] outside workspace",
+                  "workspace:tcp [0.113, 0.025, 0.011] outside workspace",
+                  "workspace:tcp [0.113, 0.025, 0.011] outside workspace",
+                  "workspace:tcp [0.113, 0.025, 0.012] outside workspace",
+                  "workspace:tcp [0.113, 0.025, 0.012] outside workspace",
+                  "workspace:tcp [0.114, 0.026, 0.012] outside workspace",
+                  "workspace:tcp [0.114, 0.027, 0.012] outside workspace",
+                  "workspace:tcp [0.112, 0.027, 0.012] outside workspace",
+                  "workspace:tcp [0.21, 0.137, 0.008] outside workspace",
+                  "workspace:tcp [0.211, 0.136, 0.01] outside workspace",
+                  "workspace:tcp [0.211, 0.136, 0.012] outside workspace",
+                  "workspace:tcp [0.211, 0.137, 0.013] outside workspace"
+                ],
+                "steps": [
+                  {
+                    "obj": "pen",
+                    "attempt": 0,
+                    "reached": false,
+                    "grasped": false,
+                    "transported": false,
+                    "placed": false,
+                    "timeout": true,
+                    "ticks": 220
+                  },
+                  {
+                    "obj": "tape",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 77
+                  },
+                  {
+                    "obj": "cup",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 73
+                  },
+                  {
+                    "obj": "box",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 92
+                  }
+                ]
+              },
+              {
+                "seed": 1000005,
+                "split": "eval_seen",
+                "success": true,
+                "n_done": 4,
+                "n_total": 4,
+                "ticks": 444,
+                "per_object": {
+                  "pen": true,
+                  "cup": true,
+                  "tape": true,
+                  "box": true
+                },
+                "phase": {
+                  "reached": 1.0,
+                  "grasped": 1.0,
+                  "transported": 1.0,
+                  "placed": 1.0
+                },
+                "safety_events": [
+                  "workspace:tcp [0.126, -0.076, 0.01] outside workspace",
+                  "workspace:tcp [0.126, -0.075, 0.012] outside workspace"
+                ],
+                "steps": [
+                  {
+                    "obj": "tape",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 190
+                  },
+                  {
+                    "obj": "cup",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 59
+                  },
+                  {
+                    "obj": "pen",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 87
+                  },
+                  {
+                    "obj": "box",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 100
+                  }
+                ]
+              },
+              {
+                "seed": 1000006,
+                "split": "eval_seen",
+                "success": true,
+                "n_done": 4,
+                "n_total": 4,
+                "ticks": 449,
+                "per_object": {
+                  "pen": true,
+                  "cup": true,
+                  "tape": true,
+                  "box": true
+                },
+                "phase": {
+                  "reached": 1.0,
+                  "grasped": 1.0,
+                  "transported": 0.75,
+                  "placed": 1.0
+                },
+                "safety_events": [
+                  "workspace:tcp [0.262, 0.032, 0.013] outside workspace"
+                ],
+                "steps": [
+                  {
+                    "obj": "tape",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 54
+                  },
+                  {
+                    "obj": "cup",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 58
+                  },
+                  {
+                    "obj": "pen",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": false,
+                    "placed": true,
+                    "timeout": true,
+                    "ticks": 220
+                  },
+                  {
+                    "obj": "box",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 110
+                  }
+                ]
+              },
+              {
+                "seed": 1000007,
+                "split": "eval_seen",
+                "success": false,
+                "n_done": 2,
+                "n_total": 4,
+                "ticks": 623,
+                "per_object": {
+                  "pen": true,
+                  "cup": true,
+                  "tape": false,
+                  "box": false
+                },
+                "phase": {
+                  "reached": 0.75,
+                  "grasped": 0.5,
+                  "transported": 0.5,
+                  "placed": 0.5
+                },
+                "safety_events": [
+                  "workspace:tcp [0.12, -0.012, 0.011] outside workspace",
+                  "workspace:tcp [0.121, -0.012, 0.012] outside workspace",
+                  "workspace:tcp [0.122, -0.011, 0.012] outside workspace"
+                ],
+                "steps": [
+                  {
+                    "obj": "tape",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": false,
+                    "transported": false,
+                    "placed": false,
+                    "timeout": true,
+                    "ticks": 220
+                  },
+                  {
+                    "obj": "pen",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 82
+                  },
+                  {
+                    "obj": "cup",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 87
+                  },
+                  {
+                    "obj": "box",
+                    "attempt": 0,
+                    "reached": false,
+                    "grasped": false,
+                    "transported": false,
+                    "placed": false,
+                    "timeout": true,
+                    "ticks": 220
+                  }
+                ]
+              },
+              {
+                "seed": 1000008,
+                "split": "eval_seen",
+                "success": false,
+                "n_done": 2,
+                "n_total": 4,
+                "ticks": 599,
+                "per_object": {
+                  "pen": false,
+                  "cup": false,
+                  "tape": true,
+                  "box": true
+                },
+                "phase": {
+                  "reached": 1.0,
+                  "grasped": 0.75,
+                  "transported": 0.5,
+                  "placed": 0.5
+                },
+                "safety_events": [
+                  "workspace:tcp [0.127, 0.004, 0.007] outside workspace",
+                  "workspace:tcp [0.127, 0.003, 0.007] outside workspace",
+                  "workspace:tcp [0.128, 0.003, 0.006] outside workspace",
+                  "workspace:tcp [0.128, 0.003, 0.006] outside workspace",
+                  "workspace:tcp [0.128, 0.003, 0.006] outside workspace",
+                  "workspace:tcp [0.128, 0.003, 0.006] outside workspace",
+                  "workspace:tcp [0.128, 0.004, 0.006] outside workspace",
+                  "workspace:tcp [0.128, 0.004, 0.007] outside workspace",
+                  "workspace:tcp [0.128, 0.004, 0.012] outside workspace",
+                  "workspace:tcp [0.258, 0.029, 0.007] outside workspace",
+                  "workspace:tcp [0.258, 0.029, 0.007] outside workspace",
+                  "workspace:tcp [0.132, -0.137, 0.009] outside workspace",
+                  "workspace:tcp [0.132, -0.137, 0.009] outside workspace",
+                  "workspace:tcp [0.131, -0.137, 0.01] outside workspace",
+                  "workspace:tcp [0.131, -0.137, 0.011] outside workspace",
+                  "workspace:tcp [0.131, -0.136, 0.011] outside workspace",
+                  "workspace:tcp [0.132, -0.136, 0.012] outside workspace",
+                  "workspace:tcp [0.132, -0.136, 0.013] outside workspace"
+                ],
+                "steps": [
+                  {
+                    "obj": "pen",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": false,
+                    "placed": false,
+                    "timeout": false,
+                    "ticks": 63
+                  },
+                  {
+                    "obj": "box",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 219
+                  },
+                  {
+                    "obj": "cup",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": false,
+                    "transported": false,
+                    "placed": false,
+                    "timeout": true,
+                    "ticks": 220
+                  },
+                  {
+                    "obj": "tape",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 85
+                  }
+                ]
+              },
+              {
+                "seed": 1000009,
+                "split": "eval_seen",
+                "success": false,
+                "n_done": 3,
+                "n_total": 4,
+                "ticks": 600,
+                "per_object": {
+                  "pen": false,
+                  "cup": true,
+                  "tape": true,
+                  "box": true
+                },
+                "phase": {
+                  "reached": 0.75,
+                  "grasped": 0.75,
+                  "transported": 0.75,
+                  "placed": 0.75
+                },
+                "safety_events": [
+                  "workspace:tcp [0.113, 0.024, 0.011] outside workspace",
+                  "workspace:tcp [0.115, 0.025, 0.01] outside workspace",
+                  "workspace:tcp [0.116, 0.024, 0.01] outside workspace",
+                  "workspace:tcp [0.117, 0.024, 0.01] outside workspace",
+                  "workspace:tcp [0.117, 0.024, 0.011] outside workspace",
+                  "workspace:tcp [0.118, 0.024, 0.011] outside workspace",
+                  "workspace:tcp [0.117, 0.025, 0.011] outside workspace",
+                  "workspace:tcp [0.117, 0.025, 0.011] outside workspace",
+                  "workspace:tcp [0.114, 0.025, 0.011] outside workspace",
+                  "workspace:tcp [0.133, 0.075, 0.013] outside workspace",
+                  "workspace:tcp [0.133, 0.075, 0.012] outside workspace",
+                  "workspace:tcp [0.133, 0.075, 0.011] outside workspace",
+                  "workspace:tcp [0.133, 0.074, 0.01] outside workspace",
+                  "workspace:tcp [0.133, 0.074, 0.013] outside workspace",
+                  "workspace:tcp [0.134, 0.074, 0.012] outside workspace",
+                  "workspace:tcp [0.134, 0.074, 0.011] outside workspace",
+                  "workspace:tcp [0.134, 0.073, 0.01] outside workspace",
+                  "workspace:tcp [0.134, 0.073, 0.012] outside workspace",
+                  "workspace:tcp [0.209, 0.146, 0.008] outside workspace",
+                  "workspace:tcp [0.211, 0.145, 0.009] outside workspace",
+                  "workspace:tcp [0.211, 0.146, 0.01] outside workspace",
+                  "workspace:tcp [0.211, 0.146, 0.011] outside workspace",
+                  "workspace:tcp [0.211, 0.147, 0.012] outside workspace",
+                  "workspace:tcp [0.21, 0.148, 0.012] outside workspace"
+                ],
+                "steps": [
+                  {
+                    "obj": "pen",
+                    "attempt": 0,
+                    "reached": false,
+                    "grasped": false,
+                    "transported": false,
+                    "placed": false,
+                    "timeout": true,
+                    "ticks": 220
+                  },
+                  {
+                    "obj": "tape",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 76
+                  },
+                  {
+                    "obj": "box",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 77
+                  },
+                  {
+                    "obj": "cup",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 218
+                  }
+                ]
+              }
+            ]
+          },
+          "eval_unseen_place": {
+            "success": {
+              "k": 2,
+              "n": 10,
+              "p": 0.2,
+              "lo": 0.056680947980693314,
+              "hi": 0.5098431532792765
+            },
+            "objects": {
+              "k": 29,
+              "n": 40,
+              "p": 0.725,
+              "lo": 0.5716474916687543,
+              "hi": 0.8389214656685692
+            },
+            "trials": [
+              {
+                "seed": 1001000,
+                "split": "eval_unseen_place",
+                "success": false,
+                "n_done": 3,
+                "n_total": 4,
+                "ticks": 449,
+                "per_object": {
+                  "pen": true,
+                  "cup": true,
+                  "tape": false,
+                  "box": true
+                },
+                "phase": {
+                  "reached": 1.0,
+                  "grasped": 0.75,
+                  "transported": 0.75,
+                  "placed": 0.75
+                },
+                "safety_events": [
+                  "workspace:tcp [0.107, -0.001, 0.012] outside workspace",
+                  "workspace:tcp [0.108, -0.004, 0.013] outside workspace"
+                ],
+                "steps": [
+                  {
+                    "obj": "pen",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 57
+                  },
+                  {
+                    "obj": "box",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 67
+                  },
+                  {
+                    "obj": "cup",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 96
+                  },
+                  {
+                    "obj": "tape",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": false,
+                    "transported": false,
+                    "placed": false,
+                    "timeout": true,
+                    "ticks": 220
+                  }
+                ]
+              },
+              {
+                "seed": 1001001,
+                "split": "eval_unseen_place",
+                "success": false,
+                "n_done": 3,
+                "n_total": 4,
+                "ticks": 565,
+                "per_object": {
+                  "pen": true,
+                  "cup": false,
+                  "tape": true,
+                  "box": true
+                },
+                "phase": {
+                  "reached": 1.0,
+                  "grasped": 0.75,
+                  "transported": 0.75,
+                  "placed": 0.75
+                },
+                "safety_events": [
+                  "workspace:tcp [-0.021, 0.233, 0.156] outside workspace",
+                  "workspace:tcp [0.236, 0.133, 0.009] outside workspace",
+                  "workspace:tcp [0.238, 0.13, 0.01] outside workspace",
+                  "workspace:tcp [0.239, 0.129, 0.01] outside workspace",
+                  "workspace:tcp [0.245, 0.13, 0.007] outside workspace",
+                  "workspace:tcp [0.248, 0.13, 0.01] outside workspace",
+                  "workspace:tcp [0.188, -0.129, 0.012] outside workspace",
+                  "workspace:tcp [0.188, -0.13, 0.013] outside workspace",
+                  "workspace:tcp [0.187, -0.13, 0.013] outside workspace",
+                  "workspace:tcp [0.187, -0.129, 0.013] outside workspace",
+                  "workspace:tcp [0.187, -0.128, 0.012] outside workspace",
+                  "workspace:tcp [0.187, -0.128, 0.012] outside workspace"
+                ],
+                "steps": [
+                  {
+                    "obj": "cup",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": false,
+                    "transported": false,
+                    "placed": false,
+                    "timeout": true,
+                    "ticks": 220
+                  },
+                  {
+                    "obj": "box",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 59
+                  },
+                  {
+                    "obj": "tape",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 171
+                  },
+                  {
+                    "obj": "pen",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 109
+                  }
+                ]
+              },
+              {
+                "seed": 1001002,
+                "split": "eval_unseen_place",
+                "success": false,
+                "n_done": 3,
+                "n_total": 4,
+                "ticks": 470,
+                "per_object": {
+                  "pen": false,
+                  "cup": true,
+                  "tape": true,
+                  "box": true
+                },
+                "phase": {
+                  "reached": 1.0,
+                  "grasped": 1.0,
+                  "transported": 0.75,
+                  "placed": 0.75
+                },
+                "safety_events": [
+                  "workspace:tcp [0.165, -0.023, 0.006] outside workspace",
+                  "workspace:tcp [0.165, -0.023, 0.008] outside workspace",
+                  "workspace:tcp [0.166, -0.023, 0.01] outside workspace",
+                  "workspace:tcp [0.167, -0.022, 0.011] outside workspace",
+                  "workspace:tcp [0.168, -0.022, 0.012] outside workspace",
+                  "workspace:tcp [0.169, -0.022, 0.013] outside workspace",
+                  "workspace:tcp [0.223, 0.076, 0.01] outside workspace",
+                  "workspace:tcp [0.224, 0.076, 0.01] outside workspace",
+                  "workspace:tcp [0.224, 0.076, 0.012] outside workspace",
+                  "workspace:tcp [0.224, 0.076, 0.013] outside workspace",
+                  "workspace:tcp [0.224, 0.076, 0.013] outside workspace"
+                ],
+                "steps": [
+                  {
+                    "obj": "tape",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 58
+                  },
+                  {
+                    "obj": "pen",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": false,
+                    "placed": false,
+                    "timeout": true,
+                    "ticks": 220
+                  },
+                  {
+                    "obj": "cup",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 84
+                  },
+                  {
+                    "obj": "box",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 99
+                  }
+                ]
+              },
+              {
+                "seed": 1001003,
+                "split": "eval_unseen_place",
+                "success": false,
+                "n_done": 3,
+                "n_total": 4,
+                "ticks": 510,
+                "per_object": {
+                  "pen": false,
+                  "cup": true,
+                  "tape": true,
+                  "box": true
+                },
+                "phase": {
+                  "reached": 1.0,
+                  "grasped": 0.75,
+                  "transported": 0.5,
+                  "placed": 0.75
+                },
+                "safety_events": [
+                  "workspace:tcp [0.254, -0.128, -0.0] outside workspace",
+                  "workspace:tcp [0.254, -0.127, -0.0] outside workspace",
+                  "workspace:tcp [0.254, -0.127, -0.0] outside workspace",
+                  "workspace:tcp [0.258, -0.13, 0.012] outside workspace",
+                  "workspace:tcp [0.258, -0.129, 0.012] outside workspace",
+                  "workspace:tcp [0.258, -0.128, 0.012] outside workspace"
+                ],
+                "steps": [
+                  {
+                    "obj": "pen",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": false,
+                    "placed": false,
+                    "timeout": false,
+                    "ticks": 75
+                  },
+                  {
+                    "obj": "cup",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 128
+                  },
+                  {
+                    "obj": "box",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 79
+                  },
+                  {
+                    "obj": "tape",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": false,
+                    "transported": false,
+                    "placed": true,
+                    "timeout": true,
+                    "ticks": 220
+                  }
+                ]
+              },
+              {
+                "seed": 1001004,
+                "split": "eval_unseen_place",
+                "success": false,
+                "n_done": 1,
+                "n_total": 4,
+                "ticks": 602,
+                "per_object": {
+                  "pen": false,
+                  "cup": true,
+                  "tape": false,
+                  "box": false
+                },
+                "phase": {
+                  "reached": 0.75,
+                  "grasped": 0.5,
+                  "transported": 0.25,
+                  "placed": 0.25
+                },
+                "safety_events": [
+                  "workspace:tcp [0.103, 0.01, 0.013] outside workspace",
+                  "workspace:tcp [0.103, 0.01, 0.012] outside workspace",
+                  "workspace:tcp [0.104, 0.01, 0.012] outside workspace",
+                  "workspace:tcp [0.104, 0.011, 0.013] outside workspace",
+                  "workspace:tcp [0.103, 0.011, 0.013] outside workspace",
+                  "workspace:tcp [0.103, 0.011, 0.012] outside workspace",
+                  "workspace:tcp [-0.004, 0.302, 0.081] outside workspace",
+                  "workspace:tcp [-0.004, 0.302, 0.081] outside workspace",
+                  "workspace:tcp [-0.004, 0.302, 0.081] outside workspace",
+                  "workspace:tcp [-0.004, 0.302, 0.081] outside workspace",
+                  "workspace:tcp [-0.004, 0.302, 0.081] outside workspace",
+                  "workspace:tcp [-0.004, 0.304, 0.086] outside workspace"
+                ],
+                "steps": [
+                  {
+                    "obj": "pen",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": false,
+                    "placed": false,
+                    "timeout": false,
+                    "ticks": 54
+                  },
+                  {
+                    "obj": "tape",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": false,
+                    "transported": false,
+                    "placed": false,
+                    "timeout": true,
+                    "ticks": 220
+                  },
+                  {
+                    "obj": "cup",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 94
+                  },
+                  {
+                    "obj": "box",
+                    "attempt": 0,
+                    "reached": false,
+                    "grasped": false,
+                    "transported": false,
+                    "placed": false,
+                    "timeout": true,
+                    "ticks": 220
+                  }
+                ]
+              },
+              {
+                "seed": 1001005,
+                "split": "eval_unseen_place",
+                "success": false,
+                "n_done": 3,
+                "n_total": 4,
+                "ticks": 673,
+                "per_object": {
+                  "pen": true,
+                  "cup": false,
+                  "tape": true,
+                  "box": true
+                },
+                "phase": {
+                  "reached": 1.0,
+                  "grasped": 0.75,
+                  "transported": 0.5,
+                  "placed": 0.75
+                },
+                "safety_events": [
+                  "workspace:tcp [0.158, -0.019, 0.013] outside workspace",
+                  "workspace:tcp [0.157, -0.018, 0.009] outside workspace",
+                  "workspace:tcp [0.158, -0.019, 0.007] outside workspace",
+                  "workspace:tcp [0.158, -0.018, 0.008] outside workspace",
+                  "workspace:tcp [0.158, -0.019, 0.01] outside workspace",
+                  "workspace:tcp [0.158, -0.019, 0.011] outside workspace",
+                  "workspace:tcp [0.159, -0.019, 0.012] outside workspace",
+                  "workspace:tcp [0.159, -0.02, 0.013] outside workspace",
+                  "workspace:tcp [0.187, -0.024, 0.013] outside workspace",
+                  "workspace:tcp [0.187, -0.025, 0.011] outside workspace",
+                  "workspace:tcp [0.186, -0.025, 0.012] outside workspace",
+                  "workspace:tcp [0.186, -0.025, 0.012] outside workspace",
+                  "workspace:tcp [0.186, -0.025, 0.012] outside workspace",
+                  "workspace:tcp [0.186, -0.024, 0.012] outside workspace",
+                  "workspace:tcp [-0.02, 0.242, 0.167] outside workspace",
+                  "workspace:tcp [0.26, -0.076, 0.011] outside workspace",
+                  "workspace:tcp [0.258, -0.075, 0.01] outside workspace",
+                  "workspace:tcp [0.258, -0.075, 0.011] outside workspace"
+                ],
+                "steps": [
+                  {
+                    "obj": "pen",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": false,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 193
+                  },
+                  {
+                    "obj": "cup",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": false,
+                    "transported": false,
+                    "placed": false,
+                    "timeout": true,
+                    "ticks": 220
+                  },
+                  {
+                    "obj": "box",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 153
+                  },
+                  {
+                    "obj": "tape",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 98
+                  }
+                ]
+              },
+              {
+                "seed": 1001006,
+                "split": "eval_unseen_place",
+                "success": true,
+                "n_done": 4,
+                "n_total": 4,
+                "ticks": 730,
+                "per_object": {
+                  "pen": true,
+                  "cup": true,
+                  "tape": true,
+                  "box": true
+                },
+                "phase": {
+                  "reached": 1.0,
+                  "grasped": 0.75,
+                  "transported": 0.75,
+                  "placed": 1.0
+                },
+                "safety_events": [
+                  "workspace:tcp [0.094, -0.086, 0.013] outside workspace",
+                  "workspace:tcp [0.094, -0.086, 0.012] outside workspace",
+                  "workspace:tcp [0.094, -0.087, 0.011] outside workspace",
+                  "workspace:tcp [0.093, -0.087, 0.011] outside workspace",
+                  "workspace:tcp [0.129, -0.145, 0.011] outside workspace",
+                  "workspace:tcp [0.129, -0.146, 0.01] outside workspace",
+                  "workspace:tcp [0.129, -0.145, 0.01] outside workspace",
+                  "workspace:tcp [0.129, -0.145, 0.01] outside workspace",
+                  "workspace:tcp [0.129, -0.145, 0.01] outside workspace",
+                  "workspace:tcp [0.129, -0.145, 0.01] outside workspace",
+                  "workspace:tcp [0.129, -0.145, 0.009] outside workspace",
+                  "workspace:tcp [0.129, -0.144, 0.011] outside workspace",
+                  "workspace:tcp [0.235, 0.134, 0.012] outside workspace",
+                  "workspace:tcp [0.237, 0.131, 0.007] outside workspace",
+                  "workspace:tcp [0.238, 0.129, 0.006] outside workspace",
+                  "workspace:tcp [0.238, 0.129, 0.008] outside workspace",
+                  "workspace:tcp [0.238, 0.129, 0.009] outside workspace",
+                  "workspace:tcp [0.238, 0.129, 0.01] outside workspace",
+                  "workspace:tcp [0.237, 0.13, 0.011] outside workspace",
+                  "workspace:tcp [0.236, 0.13, 0.012] outside workspace",
+                  "workspace:tcp [0.235, 0.133, 0.006] outside workspace",
+                  "workspace:tcp [0.237, 0.13, 0.005] outside workspace",
+                  "workspace:tcp [0.238, 0.129, 0.007] outside workspace",
+                  "workspace:tcp [0.238, 0.129, 0.008] outside workspace",
+                  "workspace:tcp [0.237, 0.129, 0.009] outside workspace",
+                  "workspace:tcp [0.237, 0.129, 0.01] outside workspace",
+                  "workspace:tcp [0.237, 0.129, 0.01] outside workspace",
+                  "workspace:tcp [0.237, 0.13, 0.011] outside workspace"
+                ],
+                "steps": [
+                  {
+                    "obj": "pen",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 193
+                  },
+                  {
+                    "obj": "tape",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": false,
+                    "transported": false,
+                    "placed": true,
+                    "timeout": true,
+                    "ticks": 220
+                  },
+                  {
+                    "obj": "box",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 86
+                  },
+                  {
+                    "obj": "cup",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 218
+                  }
+                ]
+              },
+              {
+                "seed": 1001007,
+                "split": "eval_unseen_place",
+                "success": false,
+                "n_done": 3,
+                "n_total": 4,
+                "ticks": 608,
+                "per_object": {
+                  "pen": true,
+                  "cup": false,
+                  "tape": true,
+                  "box": true
+                },
+                "phase": {
+                  "reached": 0.75,
+                  "grasped": 0.75,
+                  "transported": 0.75,
+                  "placed": 0.75
+                },
+                "safety_events": [
+                  "workspace:tcp [0.207, 0.148, 0.009] outside workspace",
+                  "workspace:tcp [0.208, 0.146, 0.008] outside workspace",
+                  "workspace:tcp [0.209, 0.146, 0.01] outside workspace",
+                  "workspace:tcp [0.209, 0.146, 0.012] outside workspace",
+                  "workspace:tcp [0.209, 0.147, 0.013] outside workspace",
+                  "workspace:tcp [0.112, -0.139, 0.013] outside workspace",
+                  "workspace:tcp [0.111, -0.139, 0.012] outside workspace"
+                ],
+                "steps": [
+                  {
+                    "obj": "cup",
+                    "attempt": 0,
+                    "reached": false,
+                    "grasped": false,
+                    "transported": false,
+                    "placed": false,
+                    "timeout": true,
+                    "ticks": 220
+                  },
+                  {
+                    "obj": "tape",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 76
+                  },
+                  {
+                    "obj": "box",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 199
+                  },
+                  {
+                    "obj": "pen",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 109
+                  }
+                ]
+              },
+              {
+                "seed": 1001008,
+                "split": "eval_unseen_place",
+                "success": false,
+                "n_done": 2,
+                "n_total": 4,
+                "ticks": 453,
+                "per_object": {
+                  "pen": false,
+                  "cup": true,
+                  "tape": true,
+                  "box": false
+                },
+                "phase": {
+                  "reached": 1.0,
+                  "grasped": 0.75,
+                  "transported": 0.5,
+                  "placed": 0.5
+                },
+                "safety_events": [
+                  "workspace:tcp [0.115, -0.119, 0.009] outside workspace",
+                  "workspace:tcp [0.116, -0.119, 0.011] outside workspace",
+                  "workspace:tcp [0.116, -0.119, 0.011] outside workspace",
+                  "workspace:tcp [0.116, -0.119, 0.011] outside workspace",
+                  "workspace:tcp [0.115, -0.119, 0.011] outside workspace",
+                  "workspace:tcp [0.115, -0.119, 0.011] outside workspace",
+                  "workspace:tcp [0.115, -0.119, 0.011] outside workspace"
+                ],
+                "steps": [
+                  {
+                    "obj": "cup",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 53
+                  },
+                  {
+                    "obj": "tape",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 55
+                  },
+                  {
+                    "obj": "box",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": false,
+                    "transported": false,
+                    "placed": false,
+                    "timeout": true,
+                    "ticks": 220
+                  },
+                  {
+                    "obj": "pen",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": false,
+                    "placed": false,
+                    "timeout": false,
+                    "ticks": 118
+                  }
+                ]
+              },
+              {
+                "seed": 1001009,
+                "split": "eval_unseen_place",
+                "success": true,
+                "n_done": 4,
+                "n_total": 4,
+                "ticks": 519,
+                "per_object": {
+                  "pen": true,
+                  "cup": true,
+                  "tape": true,
+                  "box": true
+                },
+                "phase": {
+                  "reached": 1.0,
+                  "grasped": 0.75,
+                  "transported": 0.75,
+                  "placed": 1.0
+                },
+                "safety_events": [
+                  "workspace:tcp [-0.009, 0.304, 0.105] outside workspace",
+                  "workspace:tcp [-0.01, 0.307, 0.102] outside workspace",
+                  "workspace:tcp [-0.012, 0.305, 0.092] outside workspace",
+                  "workspace:tcp [-0.012, 0.305, 0.089] outside workspace",
+                  "workspace:tcp [-0.012, 0.304, 0.086] outside workspace",
+                  "workspace:tcp [-0.011, 0.305, 0.087] outside workspace",
+                  "workspace:tcp [-0.011, 0.306, 0.093] outside workspace",
+                  "workspace:tcp [-0.011, 0.306, 0.097] outside workspace",
+                  "workspace:tcp [-0.01, 0.305, 0.099] outside workspace",
+                  "workspace:tcp [-0.01, 0.301, 0.094] outside workspace",
+                  "workspace:tcp [-0.009, 0.3, 0.098] outside workspace",
+                  "workspace:tcp [-0.008, 0.305, 0.12] outside workspace",
+                  "workspace:tcp [-0.006, 0.302, 0.116] outside workspace",
+                  "workspace:tcp [-0.004, 0.301, 0.115] outside workspace",
+                  "workspace:tcp [-0.001, 0.302, 0.116] outside workspace",
+                  "workspace:tcp [-0.009, 0.305, 0.108] outside workspace",
+                  "workspace:tcp [-0.01, 0.308, 0.108] outside workspace",
+                  "workspace:tcp [-0.012, 0.307, 0.097] outside workspace",
+                  "workspace:tcp [-0.012, 0.307, 0.094] outside workspace",
+                  "workspace:tcp [-0.012, 0.307, 0.096] outside workspace",
+                  "workspace:tcp [-0.012, 0.308, 0.101] outside workspace",
+                  "workspace:tcp [-0.011, 0.308, 0.107] outside workspace",
+                  "workspace:tcp [-0.011, 0.307, 0.111] outside workspace",
+                  "workspace:tcp [-0.01, 0.306, 0.106] outside workspace",
+                  "workspace:tcp [-0.01, 0.302, 0.096] outside workspace",
+                  "workspace:tcp [-0.009, 0.3, 0.099] outside workspace",
+                  "workspace:tcp [-0.008, 0.305, 0.115] outside workspace",
+                  "workspace:tcp [-0.008, 0.305, 0.115] outside workspace",
+                  "workspace:tcp [-0.008, 0.305, 0.115] outside workspace",
+                  "workspace:tcp [-0.008, 0.305, 0.115] outside workspace",
+                  "workspace:tcp [-0.008, 0.305, 0.115] outside workspace",
+                  "workspace:tcp [-0.008, 0.305, 0.115] outside workspace",
+                  "workspace:tcp [-0.008, 0.305, 0.115] outside workspace",
+                  "workspace:tcp [-0.008, 0.305, 0.115] outside workspace",
+                  "workspace:tcp [-0.008, 0.305, 0.115] outside workspace",
+                  "workspace:tcp [-0.008, 0.305, 0.115] outside workspace",
+                  "workspace:tcp [-0.008, 0.305, 0.115] outside workspace",
+                  "workspace:tcp [-0.008, 0.305, 0.115] outside workspace",
+                  "workspace:tcp [-0.008, 0.305, 0.115] outside workspace",
+                  "workspace:tcp [-0.008, 0.305, 0.115] outside workspace",
+                  "workspace:tcp [-0.008, 0.305, 0.115] outside workspace",
+                  "workspace:tcp [-0.008, 0.305, 0.115] outside workspace",
+                  "workspace:tcp [-0.008, 0.305, 0.115] outside workspace",
+                  "workspace:tcp [-0.008, 0.305, 0.115] outside workspace",
+                  "workspace:tcp [-0.008, 0.305, 0.115] outside workspace",
+                  "workspace:tcp [-0.008, 0.305, 0.115] outside workspace",
+                  "workspace:tcp [-0.008, 0.305, 0.118] outside workspace",
+                  "workspace:tcp [-0.008, 0.301, 0.127] outside workspace",
+                  "workspace:tcp [-0.006, 0.3, 0.122] outside workspace",
+                  "workspace:tcp [-0.002, 0.301, 0.122] outside workspace",
+                  "workspace:tcp [0.004, 0.301, 0.12] outside workspace",
+                  "workspace:tcp [0.01, 0.3, 0.119] outside workspace",
+                  "workspace:tcp [0.255, 0.03, 0.012] outside workspace",
+                  "workspace:tcp [0.271, -0.071, 0.012] outside workspace",
+                  "workspace:tcp [0.271, -0.072, 0.01] outside workspace",
+                  "workspace:tcp [0.271, -0.073, 0.01] outside workspace",
+                  "workspace:tcp [0.271, -0.072, 0.012] outside workspace"
+                ],
+                "steps": [
+                  {
+                    "obj": "box",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": false,
+                    "transported": false,
+                    "placed": true,
+                    "timeout": true,
+                    "ticks": 220
+                  },
+                  {
+                    "obj": "cup",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 88
+                  },
+                  {
+                    "obj": "tape",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 89
+                  },
+                  {
+                    "obj": "pen",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 101
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "teleop_1x",
+        "chore": "desk_clearing",
+        "seed": 0,
+        "human": {
+          "total_min": 6.81,
+          "by_kind_min": {
+            "teleop": 5.15,
+            "reset": 1.67
+          }
+        },
+        "n_segments": 20,
+        "checkpoint_hash": "64dc2bfda7826a664484bb2e361e926d5c523f4aaa6ecf6dd02ce284137acf93",
+        "dataset_hash": "bd7bfd2f3a217c2c8ce24f99be8a75f08720a952a5c6a12c3188b695bfd5f2bf",
+        "meta": {
+          "n_demos": 5,
+          "operator_success": 5,
+          "budget_s": 444.56666666666666
+        },
+        "program": {
+          "box": [
+            "fixture:bin",
+            [
+              -0.020519526508575896,
+              0.022311914900989688,
+              0.0
+            ]
+          ],
+          "tape": [
+            "fixture:bin",
+            [
+              0.035553658563282894,
+              -0.028414341126676273,
+              0.0
+            ]
+          ],
+          "pen": [
+            "fixture:bin",
+            [
+              0.04391979479009564,
+              0.024429075014796908,
+              0.0
+            ]
+          ],
+          "cup": [
+            "fixture:bin",
+            [
+              -0.03478886266373217,
+              -0.044648351809115264,
+              0.0
+            ]
+          ]
+        },
+        "order": null,
+        "splits": {
+          "eval_seen": {
+            "success": {
+              "k": 0,
+              "n": 10,
+              "p": 0.0,
+              "lo": 0.0,
+              "hi": 0.2775401687666166
+            },
+            "objects": {
+              "k": 17,
+              "n": 40,
+              "p": 0.425,
+              "lo": 0.28509168524815875,
+              "hi": 0.5780519956394001
+            },
+            "trials": [
+              {
+                "seed": 1000000,
+                "split": "eval_seen",
+                "success": false,
+                "n_done": 1,
+                "n_total": 4,
+                "ticks": 813,
+                "per_object": {
+                  "pen": false,
+                  "cup": true,
+                  "tape": false,
+                  "box": false
+                },
+                "phase": {
+                  "reached": 0.75,
+                  "grasped": 0.5,
+                  "transported": 0.25,
+                  "placed": 0.25
+                },
+                "safety_events": [
+                  "workspace:tcp [0.103, -0.021, 0.011] outside workspace",
+                  "workspace:tcp [0.103, -0.021, 0.009] outside workspace",
+                  "workspace:tcp [0.102, -0.021, 0.009] outside workspace",
+                  "workspace:tcp [0.102, -0.02, 0.009] outside workspace",
+                  "workspace:tcp [0.103, -0.02, 0.008] outside workspace",
+                  "workspace:tcp [0.103, -0.02, 0.008] outside workspace",
+                  "workspace:tcp [0.103, -0.02, 0.009] outside workspace",
+                  "workspace:tcp [0.103, -0.02, 0.01] outside workspace",
+                  "workspace:tcp [0.103, -0.02, 0.012] outside workspace",
+                  "workspace:tcp [0.159, 0.0, 0.013] outside workspace",
+                  "workspace:tcp [0.158, 0.0, 0.008] outside workspace",
+                  "workspace:tcp [0.158, 0.001, 0.006] outside workspace",
+                  "workspace:tcp [0.158, 0.001, 0.005] outside workspace",
+                  "workspace:tcp [0.158, -0.0, 0.006] outside workspace",
+                  "workspace:tcp [0.158, -0.0, 0.005] outside workspace",
+                  "workspace:tcp [0.159, 0.0, 0.006] outside workspace",
+                  "workspace:tcp [0.159, 0.0, 0.006] outside workspace",
+                  "workspace:tcp [0.159, 0.0, 0.008] outside workspace",
+                  "workspace:tcp [0.159, 0.001, 0.009] outside workspace",
+                  "workspace:tcp [0.159, 0.001, 0.01] outside workspace",
+                  "workspace:tcp [0.159, 0.001, 0.012] outside workspace"
+                ],
+                "steps": [
+                  {
+                    "obj": "pen",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": false,
+                    "placed": false,
+                    "timeout": true,
+                    "ticks": 220
+                  },
+                  {
+                    "obj": "cup",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 133
+                  },
+                  {
+                    "obj": "tape",
+                    "attempt": 0,
+                    "reached": false,
+                    "grasped": false,
+                    "transported": false,
+                    "placed": false,
+                    "timeout": true,
+                    "ticks": 220
+                  },
+                  {
+                    "obj": "box",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": false,
+                    "transported": false,
+                    "placed": false,
+                    "timeout": true,
+                    "ticks": 220
+                  }
+                ]
+              },
+              {
+                "seed": 1000001,
+                "split": "eval_seen",
+                "success": false,
+                "n_done": 2,
+                "n_total": 4,
+                "ticks": 876,
+                "per_object": {
+                  "pen": true,
+                  "cup": false,
+                  "tape": false,
+                  "box": true
+                },
+                "phase": {
+                  "reached": 0.75,
+                  "grasped": 0.5,
+                  "transported": 0.25,
+                  "placed": 0.25
+                },
+                "safety_events": [
+                  "workspace:tcp [0.177, -0.116, 0.012] outside workspace",
+                  "workspace:tcp [0.176, -0.116, 0.012] outside workspace",
+                  "workspace:tcp [0.176, -0.116, 0.012] outside workspace"
+                ],
+                "steps": [
+                  {
+                    "obj": "cup",
+                    "attempt": 0,
+                    "reached": false,
+                    "grasped": false,
+                    "transported": false,
+                    "placed": false,
+                    "timeout": true,
+                    "ticks": 220
+                  },
+                  {
+                    "obj": "box",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": false,
+                    "placed": false,
+                    "timeout": true,
+                    "ticks": 220
+                  },
+                  {
+                    "obj": "tape",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": false,
+                    "transported": false,
+                    "placed": false,
+                    "timeout": true,
+                    "ticks": 220
+                  },
+                  {
+                    "obj": "pen",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 206
+                  }
+                ]
+              },
+              {
+                "seed": 1000002,
+                "split": "eval_seen",
+                "success": false,
+                "n_done": 1,
+                "n_total": 4,
+                "ticks": 832,
+                "per_object": {
+                  "pen": false,
+                  "cup": false,
+                  "tape": true,
+                  "box": false
+                },
+                "phase": {
+                  "reached": 1.0,
+                  "grasped": 0.5,
+                  "transported": 0.25,
+                  "placed": 0.25
+                },
+                "safety_events": [
+                  "workspace:tcp [0.176, -0.015, 0.01] outside workspace",
+                  "workspace:tcp [0.175, -0.015, 0.008] outside workspace",
+                  "workspace:tcp [0.175, -0.015, 0.009] outside workspace",
+                  "workspace:tcp [0.177, -0.016, 0.01] outside workspace",
+                  "workspace:tcp [0.177, -0.017, 0.01] outside workspace",
+                  "workspace:tcp [0.177, -0.016, 0.01] outside workspace",
+                  "workspace:tcp [0.177, -0.016, 0.01] outside workspace",
+                  "workspace:tcp [0.176, -0.016, 0.012] outside workspace",
+                  "workspace:tcp [0.267, -0.025, 0.013] outside workspace",
+                  "workspace:tcp [0.254, -0.024, 0.005] outside workspace",
+                  "workspace:tcp [0.256, -0.024, 0.005] outside workspace",
+                  "workspace:tcp [0.256, -0.023, 0.005] outside workspace",
+                  "workspace:tcp [0.254, -0.023, 0.005] outside workspace"
+                ],
+                "steps": [
+                  {
+                    "obj": "pen",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": false,
+                    "placed": false,
+                    "timeout": true,
+                    "ticks": 220
+                  },
+                  {
+                    "obj": "cup",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": false,
+                    "transported": false,
+                    "placed": false,
+                    "timeout": true,
+                    "ticks": 220
+                  },
+                  {
+                    "obj": "tape",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 158
+                  },
+                  {
+                    "obj": "box",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": false,
+                    "transported": false,
+                    "placed": false,
+                    "timeout": true,
+                    "ticks": 220
+                  }
+                ]
+              },
+              {
+                "seed": 1000003,
+                "split": "eval_seen",
+                "success": false,
+                "n_done": 1,
+                "n_total": 4,
+                "ticks": 894,
+                "per_object": {
+                  "pen": false,
+                  "cup": true,
+                  "tape": false,
+                  "box": false
+                },
+                "phase": {
+                  "reached": 0.5,
+                  "grasped": 0.25,
+                  "transported": 0.0,
+                  "placed": 0.0
+                },
+                "safety_events": [
+                  "workspace:tcp [0.087, -0.025, 0.011] outside workspace",
+                  "workspace:tcp [0.087, -0.024, 0.012] outside workspace",
+                  "workspace:tcp [0.086, -0.024, 0.012] outside workspace",
+                  "workspace:tcp [0.088, -0.025, 0.012] outside workspace",
+                  "workspace:tcp [0.088, -0.025, 0.011] outside workspace",
+                  "workspace:tcp [0.088, -0.025, 0.011] outside workspace",
+                  "workspace:tcp [0.089, -0.025, 0.012] outside workspace",
+                  "workspace:tcp [0.135, -0.029, 0.012] outside workspace",
+                  "workspace:tcp [0.134, -0.029, 0.008] outside workspace",
+                  "workspace:tcp [0.133, -0.029, 0.006] outside workspace",
+                  "workspace:tcp [0.132, -0.028, 0.006] outside workspace",
+                  "workspace:tcp [0.132, -0.029, 0.007] outside workspace",
+                  "workspace:tcp [0.133, -0.03, 0.007] outside workspace",
+                  "workspace:tcp [0.134, -0.03, 0.007] outside workspace",
+                  "workspace:tcp [0.134, -0.03, 0.007] outside workspace",
+                  "workspace:tcp [0.135, -0.03, 0.008] outside workspace",
+                  "workspace:tcp [0.135, -0.03, 0.01] outside workspace",
+                  "workspace:tcp [0.135, -0.03, 0.012] outside workspace",
+                  "workspace:tcp [0.216, 0.128, 0.012] outside workspace",
+                  "workspace:tcp [0.217, 0.129, 0.011] outside workspace",
+                  "workspace:tcp [0.216, 0.129, 0.01] outside workspace",
+                  "workspace:tcp [0.216, 0.128, 0.011] outside workspace",
+                  "workspace:tcp [0.215, 0.127, 0.011] outside workspace",
+                  "workspace:tcp [0.214, 0.127, 0.011] outside workspace",
+                  "workspace:tcp [0.213, 0.127, 0.011] outside workspace",
+                  "workspace:tcp [0.211, 0.126, 0.009] outside workspace"
+                ],
+                "steps": [
+                  {
+                    "obj": "pen",
+                    "attempt": 0,
+                    "reached": false,
+                    "grasped": false,
+                    "transported": false,
+                    "placed": false,
+                    "timeout": true,
+                    "ticks": 220
+                  },
+                  {
+                    "obj": "box",
+                    "attempt": 0,
+                    "reached": false,
+                    "grasped": false,
+                    "transported": false,
+                    "placed": false,
+                    "timeout": true,
+                    "ticks": 220
+                  },
+                  {
+                    "obj": "cup",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": false,
+                    "placed": false,
+                    "timeout": true,
+                    "ticks": 220
+                  },
+                  {
+                    "obj": "tape",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": false,
+                    "transported": false,
+                    "placed": false,
+                    "timeout": true,
+                    "ticks": 220
+                  }
+                ]
+              },
+              {
+                "seed": 1000004,
+                "split": "eval_seen",
+                "success": false,
+                "n_done": 2,
+                "n_total": 4,
+                "ticks": 767,
+                "per_object": {
+                  "pen": false,
+                  "cup": true,
+                  "tape": true,
+                  "box": false
+                },
+                "phase": {
+                  "reached": 0.5,
+                  "grasped": 0.5,
+                  "transported": 0.5,
+                  "placed": 0.5
+                },
+                "safety_events": [
+                  "workspace:tcp [0.097, 0.017, 0.013] outside workspace",
+                  "workspace:tcp [0.096, 0.018, 0.008] outside workspace",
+                  "workspace:tcp [0.095, 0.018, 0.006] outside workspace",
+                  "workspace:tcp [0.095, 0.018, 0.006] outside workspace",
+                  "workspace:tcp [0.096, 0.018, 0.006] outside workspace",
+                  "workspace:tcp [0.097, 0.017, 0.006] outside workspace",
+                  "workspace:tcp [0.098, 0.017, 0.006] outside workspace",
+                  "workspace:tcp [0.098, 0.017, 0.007] outside workspace",
+                  "workspace:tcp [0.097, 0.017, 0.006] outside workspace",
+                  "workspace:tcp [0.096, 0.017, 0.007] outside workspace",
+                  "workspace:tcp [0.096, 0.017, 0.01] outside workspace",
+                  "workspace:tcp [0.145, 0.092, 0.013] outside workspace",
+                  "workspace:tcp [0.145, 0.092, 0.012] outside workspace",
+                  "workspace:tcp [0.145, 0.092, 0.012] outside workspace",
+                  "workspace:tcp [0.146, 0.092, 0.013] outside workspace",
+                  "workspace:tcp [0.184, 0.094, 0.01] outside workspace",
+                  "workspace:tcp [0.184, 0.094, 0.009] outside workspace",
+                  "workspace:tcp [0.184, 0.094, 0.012] outside workspace",
+                  "workspace:tcp [0.185, 0.094, 0.012] outside workspace",
+                  "workspace:tcp [0.185, 0.095, 0.012] outside workspace",
+                  "workspace:tcp [0.184, 0.095, 0.011] outside workspace",
+                  "workspace:tcp [0.184, 0.095, 0.011] outside workspace",
+                  "workspace:tcp [0.184, 0.095, 0.012] outside workspace",
+                  "workspace:tcp [0.222, 0.121, 0.01] outside workspace",
+                  "workspace:tcp [0.223, 0.122, 0.009] outside workspace",
+                  "workspace:tcp [0.223, 0.121, 0.01] outside workspace",
+                  "workspace:tcp [0.223, 0.121, 0.012] outside workspace",
+                  "workspace:tcp [0.223, 0.121, 0.011] outside workspace",
+                  "workspace:tcp [0.222, 0.122, 0.011] outside workspace",
+                  "workspace:tcp [0.222, 0.122, 0.011] outside workspace",
+                  "workspace:tcp [0.009, 0.3, 0.132] outside workspace",
+                  "workspace:tcp [0.005, 0.303, 0.126] outside workspace",
+                  "workspace:tcp [0.003, 0.301, 0.118] outside workspace",
+                  "workspace:tcp [0.002, 0.301, 0.114] outside workspace",
+                  "workspace:tcp [0.001, 0.305, 0.131] outside workspace",
+                  "workspace:tcp [0.0, 0.305, 0.127] outside workspace",
+                  "workspace:tcp [-0.001, 0.305, 0.119] outside workspace",
+                  "workspace:tcp [-0.002, 0.305, 0.118] outside workspace",
+                  "workspace:tcp [-0.002, 0.305, 0.119] outside workspace",
+                  "workspace:tcp [-0.001, 0.305, 0.126] outside workspace",
+                  "workspace:tcp [0.0, 0.301, 0.121] outside workspace",
+                  "workspace:tcp [0.003, 0.3, 0.117] outside workspace",
+                  "workspace:tcp [0.003, 0.3, 0.117] outside workspace",
+                  "workspace:tcp [0.003, 0.304, 0.118] outside workspace",
+                  "workspace:tcp [0.006, 0.303, 0.091] outside workspace",
+                  "workspace:tcp [0.007, 0.306, 0.1] outside workspace",
+                  "workspace:tcp [0.007, 0.306, 0.092] outside workspace",
+                  "workspace:tcp [0.008, 0.304, 0.09] outside workspace",
+                  "workspace:tcp [0.009, 0.301, 0.087] outside workspace",
+                  "workspace:tcp [0.017, 0.301, 0.11] outside workspace"
+                ],
+                "steps": [
+                  {
+                    "obj": "pen",
+                    "attempt": 0,
+                    "reached": false,
+                    "grasped": false,
+                    "transported": false,
+                    "placed": false,
+                    "timeout": true,
+                    "ticks": 220
+                  },
+                  {
+                    "obj": "tape",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 179
+                  },
+                  {
+                    "obj": "cup",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 141
+                  },
+                  {
+                    "obj": "box",
+                    "attempt": 0,
+                    "reached": false,
+                    "grasped": false,
+                    "transported": false,
+                    "placed": false,
+                    "timeout": true,
+                    "ticks": 220
+                  }
+                ]
+              },
+              {
+                "seed": 1000005,
+                "split": "eval_seen",
+                "success": false,
+                "n_done": 3,
+                "n_total": 4,
+                "ticks": 595,
+                "per_object": {
+                  "pen": true,
+                  "cup": false,
+                  "tape": true,
+                  "box": true
+                },
+                "phase": {
+                  "reached": 0.75,
+                  "grasped": 0.75,
+                  "transported": 0.75,
+                  "placed": 0.75
+                },
+                "safety_events": [
+                  "workspace:tcp [0.15, -0.103, 0.01] outside workspace",
+                  "workspace:tcp [0.15, -0.103, 0.008] outside workspace",
+                  "workspace:tcp [0.15, -0.103, 0.007] outside workspace",
+                  "workspace:tcp [0.15, -0.104, 0.008] outside workspace",
+                  "workspace:tcp [0.15, -0.104, 0.007] outside workspace",
+                  "workspace:tcp [0.15, -0.103, 0.007] outside workspace",
+                  "workspace:tcp [0.15, -0.103, 0.007] outside workspace",
+                  "workspace:tcp [0.15, -0.103, 0.008] outside workspace",
+                  "workspace:tcp [0.151, -0.103, 0.009] outside workspace",
+                  "workspace:tcp [0.151, -0.102, 0.011] outside workspace"
+                ],
+                "steps": [
+                  {
+                    "obj": "tape",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 80
+                  },
+                  {
+                    "obj": "cup",
+                    "attempt": 0,
+                    "reached": false,
+                    "grasped": false,
+                    "transported": false,
+                    "placed": false,
+                    "timeout": true,
+                    "ticks": 220
+                  },
+                  {
+                    "obj": "box",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 119
+                  },
+                  {
+                    "obj": "pen",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 164
+                  }
+                ]
+              },
+              {
+                "seed": 1000006,
+                "split": "eval_seen",
+                "success": false,
+                "n_done": 2,
+                "n_total": 4,
+                "ticks": 735,
+                "per_object": {
+                  "pen": true,
+                  "cup": true,
+                  "tape": false,
+                  "box": false
+                },
+                "phase": {
+                  "reached": 1.0,
+                  "grasped": 0.5,
+                  "transported": 0.5,
+                  "placed": 0.5
+                },
+                "safety_events": [
+                  "workspace:tcp [0.261, 0.002, 0.012] outside workspace",
+                  "workspace:tcp [0.261, 0.002, 0.013] outside workspace",
+                  "workspace:tcp [0.261, 0.003, 0.012] outside workspace",
+                  "workspace:tcp [0.26, 0.002, 0.011] outside workspace",
+                  "workspace:tcp [0.26, 0.002, 0.01] outside workspace",
+                  "workspace:tcp [0.26, 0.002, 0.01] outside workspace",
+                  "workspace:tcp [0.26, 0.002, 0.011] outside workspace",
+                  "workspace:tcp [0.26, 0.002, 0.011] outside workspace",
+                  "workspace:tcp [0.261, 0.002, 0.013] outside workspace"
+                ],
+                "steps": [
+                  {
+                    "obj": "tape",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": false,
+                    "transported": false,
+                    "placed": false,
+                    "timeout": true,
+                    "ticks": 220
+                  },
+                  {
+                    "obj": "cup",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 125
+                  },
+                  {
+                    "obj": "pen",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 149
+                  },
+                  {
+                    "obj": "box",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": false,
+                    "transported": false,
+                    "placed": false,
+                    "timeout": true,
+                    "ticks": 220
+                  }
+                ]
+              },
+              {
+                "seed": 1000007,
+                "split": "eval_seen",
+                "success": false,
+                "n_done": 1,
+                "n_total": 4,
+                "ticks": 831,
+                "per_object": {
+                  "pen": false,
+                  "cup": true,
+                  "tape": false,
+                  "box": false
+                },
+                "phase": {
+                  "reached": 0.25,
+                  "grasped": 0.25,
+                  "transported": 0.25,
+                  "placed": 0.25
+                },
+                "safety_events": [
+                  "workspace:tcp [0.159, -0.013, 0.01] outside workspace",
+                  "workspace:tcp [0.158, -0.013, 0.009] outside workspace",
+                  "workspace:tcp [0.128, 0.037, 0.011] outside workspace",
+                  "workspace:tcp [0.127, 0.037, 0.01] outside workspace",
+                  "workspace:tcp [0.127, 0.037, 0.01] outside workspace",
+                  "workspace:tcp [0.128, 0.036, 0.011] outside workspace",
+                  "workspace:tcp [0.128, 0.035, 0.01] outside workspace",
+                  "workspace:tcp [0.129, 0.035, 0.01] outside workspace",
+                  "workspace:tcp [0.129, 0.035, 0.01] outside workspace",
+                  "workspace:tcp [0.129, 0.035, 0.011] outside workspace",
+                  "workspace:tcp [0.129, 0.035, 0.013] outside workspace",
+                  "workspace:tcp [0.126, 0.04, 0.012] outside workspace",
+                  "workspace:tcp [0.125, 0.041, 0.012] outside workspace",
+                  "workspace:tcp [0.125, 0.041, 0.012] outside workspace",
+                  "workspace:tcp [0.126, 0.039, 0.012] outside workspace",
+                  "workspace:tcp [0.127, 0.039, 0.011] outside workspace",
+                  "workspace:tcp [0.127, 0.038, 0.011] outside workspace",
+                  "workspace:tcp [0.127, 0.039, 0.011] outside workspace",
+                  "workspace:tcp [0.127, 0.039, 0.013] outside workspace",
+                  "workspace:tcp [0.003, 0.303, 0.092] outside workspace",
+                  "workspace:tcp [0.011, 0.301, 0.113] outside workspace"
+                ],
+                "steps": [
+                  {
+                    "obj": "tape",
+                    "attempt": 0,
+                    "reached": false,
+                    "grasped": false,
+                    "transported": false,
+                    "placed": false,
+                    "timeout": true,
+                    "ticks": 220
+                  },
+                  {
+                    "obj": "pen",
+                    "attempt": 0,
+                    "reached": false,
+                    "grasped": false,
+                    "transported": false,
+                    "placed": false,
+                    "timeout": true,
+                    "ticks": 220
+                  },
+                  {
+                    "obj": "cup",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 162
+                  },
+                  {
+                    "obj": "box",
+                    "attempt": 0,
+                    "reached": false,
+                    "grasped": false,
+                    "transported": false,
+                    "placed": false,
+                    "timeout": true,
+                    "ticks": 220
+                  }
+                ]
+              },
+              {
+                "seed": 1000008,
+                "split": "eval_seen",
+                "success": false,
+                "n_done": 1,
+                "n_total": 4,
+                "ticks": 708,
+                "per_object": {
+                  "pen": false,
+                  "cup": false,
+                  "tape": false,
+                  "box": true
+                },
+                "phase": {
+                  "reached": 0.5,
+                  "grasped": 0.5,
+                  "transported": 0.5,
+                  "placed": 0.5
+                },
+                "safety_events": [
+                  "workspace:tcp [0.108, -0.005, 0.013] outside workspace",
+                  "workspace:tcp [0.108, -0.005, 0.011] outside workspace",
+                  "workspace:tcp [0.108, -0.005, 0.011] outside workspace",
+                  "workspace:tcp [0.107, -0.005, 0.011] outside workspace",
+                  "workspace:tcp [0.107, -0.005, 0.013] outside workspace",
+                  "workspace:tcp [0.169, 0.037, 0.011] outside workspace",
+                  "workspace:tcp [0.168, 0.037, 0.009] outside workspace",
+                  "workspace:tcp [0.168, 0.037, 0.009] outside workspace",
+                  "workspace:tcp [0.17, 0.036, 0.01] outside workspace",
+                  "workspace:tcp [0.17, 0.036, 0.01] outside workspace",
+                  "workspace:tcp [0.17, 0.036, 0.01] outside workspace",
+                  "workspace:tcp [0.17, 0.036, 0.011] outside workspace",
+                  "workspace:tcp [0.169, 0.036, 0.013] outside workspace"
+                ],
+                "steps": [
+                  {
+                    "obj": "pen",
+                    "attempt": 0,
+                    "reached": false,
+                    "grasped": false,
+                    "transported": false,
+                    "placed": false,
+                    "timeout": true,
+                    "ticks": 220
+                  },
+                  {
+                    "obj": "box",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 125
+                  },
+                  {
+                    "obj": "cup",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 139
+                  },
+                  {
+                    "obj": "tape",
+                    "attempt": 0,
+                    "reached": false,
+                    "grasped": false,
+                    "transported": false,
+                    "placed": false,
+                    "timeout": true,
+                    "ticks": 220
+                  }
+                ]
+              },
+              {
+                "seed": 1000009,
+                "split": "eval_seen",
+                "success": false,
+                "n_done": 3,
+                "n_total": 4,
+                "ticks": 595,
+                "per_object": {
+                  "pen": false,
+                  "cup": true,
+                  "tape": true,
+                  "box": true
+                },
+                "phase": {
+                  "reached": 0.75,
+                  "grasped": 0.75,
+                  "transported": 0.75,
+                  "placed": 0.75
+                },
+                "safety_events": [
+                  "workspace:tcp [0.101, 0.011, 0.01] outside workspace",
+                  "workspace:tcp [0.1, 0.012, 0.007] outside workspace",
+                  "workspace:tcp [0.1, 0.012, 0.005] outside workspace",
+                  "workspace:tcp [0.101, 0.011, 0.006] outside workspace",
+                  "workspace:tcp [0.101, 0.011, 0.005] outside workspace",
+                  "workspace:tcp [0.101, 0.011, 0.004] outside workspace",
+                  "workspace:tcp [0.101, 0.011, 0.004] outside workspace",
+                  "workspace:tcp [0.1, 0.011, 0.004] outside workspace",
+                  "workspace:tcp [0.1, 0.011, 0.005] outside workspace",
+                  "workspace:tcp [0.1, 0.011, 0.007] outside workspace",
+                  "workspace:tcp [0.1, 0.011, 0.011] outside workspace",
+                  "workspace:tcp [0.156, 0.095, 0.012] outside workspace",
+                  "workspace:tcp [0.156, 0.096, 0.011] outside workspace",
+                  "workspace:tcp [0.157, 0.095, 0.012] outside workspace",
+                  "workspace:tcp [0.158, 0.095, 0.012] outside workspace",
+                  "workspace:tcp [0.158, 0.096, 0.013] outside workspace",
+                  "workspace:tcp [0.227, 0.135, 0.012] outside workspace",
+                  "workspace:tcp [0.227, 0.135, 0.011] outside workspace",
+                  "workspace:tcp [0.227, 0.134, 0.013] outside workspace",
+                  "workspace:tcp [0.227, 0.134, 0.012] outside workspace",
+                  "workspace:tcp [0.226, 0.134, 0.012] outside workspace",
+                  "workspace:tcp [0.226, 0.135, 0.012] outside workspace"
+                ],
+                "steps": [
+                  {
+                    "obj": "pen",
+                    "attempt": 0,
+                    "reached": false,
+                    "grasped": false,
+                    "transported": false,
+                    "placed": false,
+                    "timeout": true,
+                    "ticks": 220
+                  },
+                  {
+                    "obj": "tape",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 96
+                  },
+                  {
+                    "obj": "box",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 120
+                  },
+                  {
+                    "obj": "cup",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 149
+                  }
+                ]
+              }
+            ]
+          },
+          "eval_unseen_place": {
+            "success": {
+              "k": 0,
+              "n": 10,
+              "p": 0.0,
+              "lo": 0.0,
+              "hi": 0.2775401687666166
+            },
+            "objects": {
+              "k": 18,
+              "n": 40,
+              "p": 0.45,
+              "lo": 0.30705075280944694,
+              "hi": 0.6017117011155924
+            },
+            "trials": [
+              {
+                "seed": 1001000,
+                "split": "eval_unseen_place",
+                "success": false,
+                "n_done": 2,
+                "n_total": 4,
+                "ticks": 721,
+                "per_object": {
+                  "pen": false,
+                  "cup": true,
+                  "tape": false,
+                  "box": true
+                },
+                "phase": {
+                  "reached": 0.5,
+                  "grasped": 0.5,
+                  "transported": 0.5,
+                  "placed": 0.5
+                },
+                "safety_events": [
+                  "workspace:tcp [0.086, -0.023, 0.012] outside workspace",
+                  "workspace:tcp [0.086, -0.022, 0.013] outside workspace",
+                  "workspace:tcp [0.087, -0.024, 0.012] outside workspace",
+                  "workspace:tcp [0.088, -0.024, 0.011] outside workspace",
+                  "workspace:tcp [0.089, -0.024, 0.011] outside workspace",
+                  "workspace:tcp [0.089, -0.024, 0.012] outside workspace",
+                  "workspace:tcp [0.089, -0.024, 0.013] outside workspace",
+                  "workspace:tcp [0.131, -0.027, 0.01] outside workspace",
+                  "workspace:tcp [0.13, -0.026, 0.007] outside workspace",
+                  "workspace:tcp [0.129, -0.026, 0.007] outside workspace",
+                  "workspace:tcp [0.129, -0.026, 0.008] outside workspace",
+                  "workspace:tcp [0.131, -0.028, 0.008] outside workspace",
+                  "workspace:tcp [0.131, -0.028, 0.007] outside workspace",
+                  "workspace:tcp [0.131, -0.028, 0.008] outside workspace",
+                  "workspace:tcp [0.131, -0.028, 0.009] outside workspace",
+                  "workspace:tcp [0.131, -0.028, 0.01] outside workspace",
+                  "workspace:tcp [0.132, -0.028, 0.012] outside workspace"
+                ],
+                "steps": [
+                  {
+                    "obj": "pen",
+                    "attempt": 0,
+                    "reached": false,
+                    "grasped": false,
+                    "transported": false,
+                    "placed": false,
+                    "timeout": true,
+                    "ticks": 220
+                  },
+                  {
+                    "obj": "tape",
+                    "attempt": 0,
+                    "reached": false,
+                    "grasped": false,
+                    "transported": false,
+                    "placed": false,
+                    "timeout": true,
+                    "ticks": 220
+                  },
+                  {
+                    "obj": "box",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 93
+                  },
+                  {
+                    "obj": "cup",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 177
+                  }
+                ]
+              },
+              {
+                "seed": 1001001,
+                "split": "eval_unseen_place",
+                "success": false,
+                "n_done": 3,
+                "n_total": 4,
+                "ticks": 636,
+                "per_object": {
+                  "pen": true,
+                  "cup": false,
+                  "tape": true,
+                  "box": true
+                },
+                "phase": {
+                  "reached": 1.0,
+                  "grasped": 0.75,
+                  "transported": 0.75,
+                  "placed": 0.75
+                },
+                "safety_events": [
+                  "workspace:tcp [0.177, -0.113, 0.012] outside workspace",
+                  "workspace:tcp [0.177, -0.113, 0.012] outside workspace",
+                  "workspace:tcp [0.177, -0.113, 0.012] outside workspace"
+                ],
+                "steps": [
+                  {
+                    "obj": "cup",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": false,
+                    "transported": false,
+                    "placed": false,
+                    "timeout": true,
+                    "ticks": 220
+                  },
+                  {
+                    "obj": "box",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 101
+                  },
+                  {
+                    "obj": "tape",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 108
+                  },
+                  {
+                    "obj": "pen",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 202
+                  }
+                ]
+              },
+              {
+                "seed": 1001002,
+                "split": "eval_unseen_place",
+                "success": false,
+                "n_done": 1,
+                "n_total": 4,
+                "ticks": 816,
+                "per_object": {
+                  "pen": false,
+                  "cup": true,
+                  "tape": false,
+                  "box": false
+                },
+                "phase": {
+                  "reached": 1.0,
+                  "grasped": 0.5,
+                  "transported": 0.0,
+                  "placed": 0.5
+                },
+                "safety_events": [
+                  "workspace:tcp [0.18, -0.035, 0.013] outside workspace",
+                  "workspace:tcp [0.182, -0.034, 0.013] outside workspace",
+                  "workspace:tcp [0.182, -0.034, 0.012] outside workspace",
+                  "workspace:tcp [0.181, -0.034, 0.012] outside workspace"
+                ],
+                "steps": [
+                  {
+                    "obj": "tape",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": false,
+                    "placed": true,
+                    "timeout": true,
+                    "ticks": 220
+                  },
+                  {
+                    "obj": "pen",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": false,
+                    "transported": false,
+                    "placed": false,
+                    "timeout": true,
+                    "ticks": 220
+                  },
+                  {
+                    "obj": "cup",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": false,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 135
+                  },
+                  {
+                    "obj": "box",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": false,
+                    "transported": false,
+                    "placed": false,
+                    "timeout": true,
+                    "ticks": 220
+                  }
+                ]
+              },
+              {
+                "seed": 1001003,
+                "split": "eval_unseen_place",
+                "success": false,
+                "n_done": 1,
+                "n_total": 4,
+                "ticks": 775,
+                "per_object": {
+                  "pen": false,
+                  "cup": false,
+                  "tape": true,
+                  "box": false
+                },
+                "phase": {
+                  "reached": 0.5,
+                  "grasped": 0.25,
+                  "transported": 0.25,
+                  "placed": 0.25
+                },
+                "safety_events": [
+                  "workspace:tcp [0.225, -0.12, 0.01] outside workspace",
+                  "workspace:tcp [0.225, -0.12, 0.01] outside workspace"
+                ],
+                "steps": [
+                  {
+                    "obj": "pen",
+                    "attempt": 0,
+                    "reached": false,
+                    "grasped": false,
+                    "transported": false,
+                    "placed": false,
+                    "timeout": true,
+                    "ticks": 220
+                  },
+                  {
+                    "obj": "tape",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 107
+                  },
+                  {
+                    "obj": "cup",
+                    "attempt": 0,
+                    "reached": false,
+                    "grasped": false,
+                    "transported": false,
+                    "placed": false,
+                    "timeout": true,
+                    "ticks": 220
+                  },
+                  {
+                    "obj": "box",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": false,
+                    "transported": false,
+                    "placed": false,
+                    "timeout": true,
+                    "ticks": 220
+                  }
+                ]
+              },
+              {
+                "seed": 1001004,
+                "split": "eval_unseen_place",
+                "success": false,
+                "n_done": 2,
+                "n_total": 4,
+                "ticks": 775,
+                "per_object": {
+                  "pen": false,
+                  "cup": true,
+                  "tape": true,
+                  "box": false
+                },
+                "phase": {
+                  "reached": 0.5,
+                  "grasped": 0.5,
+                  "transported": 0.25,
+                  "placed": 0.25
+                },
+                "safety_events": [
+                  "workspace:tcp [0.093, -0.022, 0.01] outside workspace",
+                  "workspace:tcp [0.093, -0.022, 0.006] outside workspace",
+                  "workspace:tcp [0.095, -0.022, 0.006] outside workspace",
+                  "workspace:tcp [0.092, -0.021, 0.006] outside workspace",
+                  "workspace:tcp [0.094, -0.022, 0.006] outside workspace",
+                  "workspace:tcp [0.094, -0.022, 0.006] outside workspace",
+                  "workspace:tcp [0.094, -0.021, 0.006] outside workspace",
+                  "workspace:tcp [0.094, -0.021, 0.006] outside workspace",
+                  "workspace:tcp [0.093, -0.021, 0.007] outside workspace",
+                  "workspace:tcp [0.093, -0.021, 0.008] outside workspace",
+                  "workspace:tcp [0.093, -0.021, 0.011] outside workspace",
+                  "workspace:tcp [0.137, 0.016, 0.009] outside workspace",
+                  "workspace:tcp [0.136, 0.017, 0.006] outside workspace",
+                  "workspace:tcp [0.136, 0.017, 0.004] outside workspace",
+                  "workspace:tcp [0.137, 0.015, 0.006] outside workspace",
+                  "workspace:tcp [0.138, 0.015, 0.006] outside workspace",
+                  "workspace:tcp [0.138, 0.016, 0.006] outside workspace",
+                  "workspace:tcp [0.138, 0.016, 0.006] outside workspace",
+                  "workspace:tcp [0.138, 0.016, 0.007] outside workspace",
+                  "workspace:tcp [0.138, 0.016, 0.009] outside workspace",
+                  "workspace:tcp [0.138, 0.017, 0.01] outside workspace",
+                  "workspace:tcp [0.138, 0.017, 0.013] outside workspace",
+                  "workspace:tcp [0.01, 0.301, 0.115] outside workspace",
+                  "workspace:tcp [0.007, 0.3, 0.113] outside workspace",
+                  "workspace:tcp [0.007, 0.301, 0.109] outside workspace",
+                  "workspace:tcp [0.006, 0.301, 0.108] outside workspace",
+                  "workspace:tcp [0.006, 0.302, 0.109] outside workspace",
+                  "workspace:tcp [0.005, 0.302, 0.108] outside workspace",
+                  "workspace:tcp [0.005, 0.302, 0.111] outside workspace",
+                  "workspace:tcp [0.005, 0.301, 0.108] outside workspace",
+                  "workspace:tcp [0.006, 0.301, 0.108] outside workspace",
+                  "workspace:tcp [0.005, 0.301, 0.106] outside workspace",
+                  "workspace:tcp [0.006, 0.302, 0.111] outside workspace",
+                  "workspace:tcp [0.008, 0.303, 0.112] outside workspace",
+                  "workspace:tcp [0.009, 0.305, 0.121] outside workspace",
+                  "workspace:tcp [0.012, 0.303, 0.102] outside workspace"
+                ],
+                "steps": [
+                  {
+                    "obj": "pen",
+                    "attempt": 0,
+                    "reached": false,
+                    "grasped": false,
+                    "transported": false,
+                    "placed": false,
+                    "timeout": true,
+                    "ticks": 220
+                  },
+                  {
+                    "obj": "tape",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 102
+                  },
+                  {
+                    "obj": "cup",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": false,
+                    "placed": false,
+                    "timeout": true,
+                    "ticks": 220
+                  },
+                  {
+                    "obj": "box",
+                    "attempt": 0,
+                    "reached": false,
+                    "grasped": false,
+                    "transported": false,
+                    "placed": false,
+                    "timeout": true,
+                    "ticks": 220
+                  }
+                ]
+              },
+              {
+                "seed": 1001005,
+                "split": "eval_unseen_place",
+                "success": false,
+                "n_done": 1,
+                "n_total": 4,
+                "ticks": 780,
+                "per_object": {
+                  "pen": false,
+                  "cup": false,
+                  "tape": true,
+                  "box": false
+                },
+                "phase": {
+                  "reached": 0.25,
+                  "grasped": 0.25,
+                  "transported": 0.25,
+                  "placed": 0.25
+                },
+                "safety_events": [
+                  "workspace:tcp [0.006, 0.301, 0.108] outside workspace"
+                ],
+                "steps": [
+                  {
+                    "obj": "pen",
+                    "attempt": 0,
+                    "reached": false,
+                    "grasped": false,
+                    "transported": false,
+                    "placed": false,
+                    "timeout": true,
+                    "ticks": 220
+                  },
+                  {
+                    "obj": "tape",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 110
+                  },
+                  {
+                    "obj": "cup",
+                    "attempt": 0,
+                    "reached": false,
+                    "grasped": false,
+                    "transported": false,
+                    "placed": false,
+                    "timeout": true,
+                    "ticks": 220
+                  },
+                  {
+                    "obj": "box",
+                    "attempt": 0,
+                    "reached": false,
+                    "grasped": false,
+                    "transported": false,
+                    "placed": false,
+                    "timeout": true,
+                    "ticks": 220
+                  }
+                ]
+              },
+              {
+                "seed": 1001006,
+                "split": "eval_unseen_place",
+                "success": false,
+                "n_done": 0,
+                "n_total": 4,
+                "ticks": 885,
+                "per_object": {
+                  "pen": false,
+                  "cup": false,
+                  "tape": false,
+                  "box": false
+                },
+                "phase": {
+                  "reached": 0.5,
+                  "grasped": 0.25,
+                  "transported": 0.0,
+                  "placed": 0.0
+                },
+                "safety_events": [
+                  "workspace:tcp [0.252, 0.109, 0.011] outside workspace",
+                  "workspace:tcp [0.251, 0.108, 0.009] outside workspace"
+                ],
+                "steps": [
+                  {
+                    "obj": "pen",
+                    "attempt": 0,
+                    "reached": false,
+                    "grasped": false,
+                    "transported": false,
+                    "placed": false,
+                    "timeout": true,
+                    "ticks": 220
+                  },
+                  {
+                    "obj": "cup",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": false,
+                    "placed": false,
+                    "timeout": true,
+                    "ticks": 220
+                  },
+                  {
+                    "obj": "box",
+                    "attempt": 0,
+                    "reached": false,
+                    "grasped": false,
+                    "transported": false,
+                    "placed": false,
+                    "timeout": true,
+                    "ticks": 220
+                  },
+                  {
+                    "obj": "tape",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": false,
+                    "transported": false,
+                    "placed": false,
+                    "timeout": true,
+                    "ticks": 220
+                  }
+                ]
+              },
+              {
+                "seed": 1001007,
+                "split": "eval_unseen_place",
+                "success": false,
+                "n_done": 3,
+                "n_total": 4,
+                "ticks": 758,
+                "per_object": {
+                  "pen": true,
+                  "cup": false,
+                  "tape": true,
+                  "box": true
+                },
+                "phase": {
+                  "reached": 0.75,
+                  "grasped": 0.75,
+                  "transported": 0.25,
+                  "placed": 0.75
+                },
+                "safety_events": [
+                  "workspace:tcp [0.22, 0.131, 0.013] outside workspace",
+                  "workspace:tcp [0.22, 0.132, 0.011] outside workspace",
+                  "workspace:tcp [0.221, 0.132, 0.009] outside workspace",
+                  "workspace:tcp [0.22, 0.131, 0.012] outside workspace",
+                  "workspace:tcp [0.22, 0.131, 0.012] outside workspace",
+                  "workspace:tcp [0.22, 0.131, 0.011] outside workspace",
+                  "workspace:tcp [0.219, 0.131, 0.011] outside workspace",
+                  "workspace:tcp [0.219, 0.131, 0.012] outside workspace",
+                  "workspace:tcp [0.115, -0.13, 0.012] outside workspace",
+                  "workspace:tcp [0.114, -0.13, 0.01] outside workspace",
+                  "workspace:tcp [0.114, -0.13, 0.01] outside workspace",
+                  "workspace:tcp [0.113, -0.131, 0.011] outside workspace",
+                  "workspace:tcp [0.114, -0.132, 0.011] outside workspace",
+                  "workspace:tcp [0.115, -0.132, 0.01] outside workspace",
+                  "workspace:tcp [0.115, -0.133, 0.01] outside workspace",
+                  "workspace:tcp [0.115, -0.132, 0.011] outside workspace",
+                  "workspace:tcp [0.115, -0.132, 0.013] outside workspace"
+                ],
+                "steps": [
+                  {
+                    "obj": "cup",
+                    "attempt": 0,
+                    "reached": false,
+                    "grasped": false,
+                    "transported": false,
+                    "placed": false,
+                    "timeout": true,
+                    "ticks": 220
+                  },
+                  {
+                    "obj": "box",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": false,
+                    "placed": true,
+                    "timeout": true,
+                    "ticks": 220
+                  },
+                  {
+                    "obj": "tape",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 100
+                  },
+                  {
+                    "obj": "pen",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": false,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 207
+                  }
+                ]
+              },
+              {
+                "seed": 1001008,
+                "split": "eval_unseen_place",
+                "success": false,
+                "n_done": 2,
+                "n_total": 4,
+                "ticks": 787,
+                "per_object": {
+                  "pen": true,
+                  "cup": false,
+                  "tape": false,
+                  "box": true
+                },
+                "phase": {
+                  "reached": 0.25,
+                  "grasped": 0.25,
+                  "transported": 0.25,
+                  "placed": 0.5
+                },
+                "safety_events": [
+                  "workspace:tcp [0.244, 0.015, 0.009] outside workspace",
+                  "workspace:tcp [0.246, 0.014, 0.009] outside workspace",
+                  "workspace:tcp [0.246, 0.014, 0.009] outside workspace",
+                  "workspace:tcp [0.248, 0.015, 0.009] outside workspace",
+                  "workspace:tcp [0.247, 0.015, 0.009] outside workspace",
+                  "workspace:tcp [0.247, 0.015, 0.009] outside workspace",
+                  "workspace:tcp [0.244, 0.014, 0.009] outside workspace",
+                  "workspace:tcp [0.152, -0.084, 0.011] outside workspace",
+                  "workspace:tcp [0.151, -0.083, 0.005] outside workspace",
+                  "workspace:tcp [0.152, -0.082, 0.003] outside workspace",
+                  "workspace:tcp [0.153, -0.083, 0.006] outside workspace",
+                  "workspace:tcp [0.153, -0.084, 0.008] outside workspace",
+                  "workspace:tcp [0.153, -0.085, 0.009] outside workspace",
+                  "workspace:tcp [0.152, -0.084, 0.01] outside workspace",
+                  "workspace:tcp [0.152, -0.084, 0.011] outside workspace"
+                ],
+                "steps": [
+                  {
+                    "obj": "cup",
+                    "attempt": 0,
+                    "reached": false,
+                    "grasped": false,
+                    "transported": false,
+                    "placed": false,
+                    "timeout": true,
+                    "ticks": 220
+                  },
+                  {
+                    "obj": "tape",
+                    "attempt": 0,
+                    "reached": false,
+                    "grasped": false,
+                    "transported": false,
+                    "placed": false,
+                    "timeout": true,
+                    "ticks": 220
+                  },
+                  {
+                    "obj": "box",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 112
+                  },
+                  {
+                    "obj": "pen",
+                    "attempt": 0,
+                    "reached": false,
+                    "grasped": false,
+                    "transported": false,
+                    "placed": true,
+                    "timeout": true,
+                    "ticks": 220
+                  }
+                ]
+              },
+              {
+                "seed": 1001009,
+                "split": "eval_unseen_place",
+                "success": false,
+                "n_done": 3,
+                "n_total": 4,
+                "ticks": 623,
+                "per_object": {
+                  "pen": true,
+                  "cup": false,
+                  "tape": true,
+                  "box": true
+                },
+                "phase": {
+                  "reached": 0.75,
+                  "grasped": 0.75,
+                  "transported": 0.75,
+                  "placed": 0.75
+                },
+                "safety_events": [
+                  "workspace:tcp [0.259, 0.013, 0.013] outside workspace",
+                  "workspace:tcp [0.26, 0.013, 0.011] outside workspace",
+                  "workspace:tcp [0.26, 0.013, 0.013] outside workspace"
+                ],
+                "steps": [
+                  {
+                    "obj": "box",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 100
+                  },
+                  {
+                    "obj": "cup",
+                    "attempt": 0,
+                    "reached": false,
+                    "grasped": false,
+                    "transported": false,
+                    "placed": false,
+                    "timeout": true,
+                    "ticks": 220
+                  },
+                  {
+                    "obj": "tape",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 106
+                  },
+                  {
+                    "obj": "pen",
+                    "attempt": 0,
+                    "reached": true,
+                    "grasped": true,
+                    "transported": true,
+                    "placed": true,
+                    "timeout": false,
+                    "ticks": 183
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "wall_s": 134.02816700935364
+  }
+}
