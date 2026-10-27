@@ -1,0 +1,64 @@
+# FINAL REVIEW
+
+**Evidence stage: all quantitative evidence is `sim`.** There are no `real` results: no arm, no phone videos, and no supervised session has been run. Numbers below are generated from `results/` and checked by `bench/check_claims.py`.
+
+## 1 Answer to the research question (sim stage)
+
+| Part of the question | Answer | Strength |
+|---|---|---|
+| ~10 phone videos, no teleop, vs teleop at equal human time | **Video wins in the twin**: {{m4.video_10.all}} vs {{m4.teleop_1x.all}} ({{m4.diff.video10_teleop1x}}). Teleop with its best validated configuration (corrective augmentation): {{m4aug.teleop_1x_aug.all}}. Teleop needed more than 4× the time and still did not catch up: {{m4.teleop_4x.all}} plain, {{m4aug.teleop_4x_aug.all}} augmented. | Strong *in sim*. It depends on the simulated operator model and simplified grasping, so it can flip on real hardware. |
+| Minutes of self-practice | One round changed success by {{m4.diff.video_practice_video_10}} at about 4× the human time (supervision + resets) | Negative / not cost-effective as implemented |
+| Uncertainty-driven vs random demo requests | {{m5.verdict}} Pooled over rounds 1–5: {{m5.diff.pooled.uncertainty_random}} vs random, {{m5.diff.pooled.uncertainty_round_robin}} vs round-robin | {{m5.strength}} |
+| Failure detection + recovery | {{m6.no_recovery}} → {{m6.recovery}} ({{m6.diff.recovery}}); blind retry {{m6.blind_retry_once}}; oracle {{m6.oracle_recovery}} | Moderate–strong in sim; the detector features are all robot-observable |
+
+**Overall: mixed.** Contribution 1 (learning from video) and Contribution 3 (recovery) are supported in simulation. Contribution 2 (uncertainty-driven requests) is {{m5.short}} in its current form.
+
+## 2 Strongest and weakest claims
+
+**Strongest.** (a) Embodiment-aware retargeting with object-centric targets is necessary: raw hand trajectories give {{m4.video_raw.all}} and hand-only targets {{m4.video_hand.all}}, vs {{m4.video_10.all}}. (b) The delta-chunk + temporal-ensembling failure, and its fix with spatial-target chunks: validation items placed went from {{dev.video_10|delta_rel}} to {{dev.video_10|cumulative_minimal (default)}}. This is a general pitfall for anyone running ACT with end-effector deltas on a lagging low-cost arm. (c) Detector-gated retry beats both no retry and blind retry.
+
+**Weakest.** (a) The size of the video-vs-teleop gap, because the teleoperator is a model (speed {{const.operator_speed}} of the robot limit, tracking noise, hesitation). A practised real operator could narrow it. (b) Every perception number, because the hand estimator is ground truth plus Gaussian noise, and the real-world fallback (fingertip caps) is weak ({{m3.sweep.fingertip_caps.f1}} event F1). (c) Generalization numbers, which use a colour-segmentation perceiver that is easier than real clutter.
+
+## 3 Sim vs real evidence
+
+| Claim | sim | real |
+|---|---|---|
+| Video vs teleop, desk clearing | done (`results/sim/m4_*`) | S2 queued (needs H1–H7) |
+| Requests | done (`results/sim/m5_*`) | S3 queued |
+| Recovery | done (`results/sim/m6_*`) | S4 queued |
+| Chores 2–4, held-out | done (`results/sim/m7_multichore.json`) | S5 queued |
+| Towel folding | not run (B-004) | S6 queued |
+| Teaching app usable by a non-expert | scripted sim walkthrough ({{m8.minutes}} human min) | H9 |
+| Safety | {{safety.incidents}} measured-state violations in {{safety.ticks}} ticks; CI safety tests | S1 queued; `SAFETY_LOG.md` empty |
+
+## 4 Human-time accounting
+
+Desk clearing, mean per data collection: 10 videos = {{m4.video_10.min}} min (film + set-up + reset; rejected clips still count). Teleop 1× = {{m4.teleop_1x.min}} min (about {{m4.teleop_1x.n_demos}} demos). Video + one practice round = {{m4.video_practice.min}} min. Active-request runs at 20 videos: {{m5.uncertainty.final.min}} min (uncertainty), {{m5.random.final.min}} min (random). Teaching app on the held-out chore: {{m8.minutes}} min. Set-up and reset durations are **assumptions** ({{const.setup_s}} s and {{const.reset_s}} s per clip or demo). The real values come from `data/private/human_time.csv`.
+
+## 5 Hardware limits (expected; not yet measured)
+
+SO-100-class servos: backlash and gravity sag are modelled only through gravity compensation (D-004). The gripper is a parallel jaw with a limited opening, so the cup is grasped across its body and the towel folding is likely infeasible. Repeatability, latency and calibration are scripted in `hardware/` (repeatability test, latency probe, ChArUco calibration) but unmeasured. The sim grasp model (containment + weld) ignores slip, so real grasp failures will lower every method's success.
+
+## 6 Safety review
+
+* The safety layer is code-enforced below the policy: limits, workspace box, no-go zones, latching e-stop each tick, watchdog, proximity pause, and token-gated drivers. CI includes safety tests that fail if a limit can be exceeded or the e-stop check is removed.
+* Measured-state audit: {{safety.episodes}} replayed episodes, {{safety.incidents}} violations. The filter intervened on {{safety.interventions}} ticks, mostly commands below the workspace floor, which are expected and safe.
+* The real arm is reachable only via `scripts/supervised_session.py` (interactive presence phrase, periodic re-confirmation, resolved SAFETY_LOG). No real session has run, and SAFETY_LOG.md has zero entries.
+* Open risks for the first real session: the gripper torque-limit register name must be verified (`hardware/so100_driver.py`), and the proximity detector's skin-colour threshold must be checked under the real lighting before policies run (S1 does this).
+
+## 7 Novelty position (relative to M0, `docs/PRIOR_WORK.md`)
+
+No component is new on its own. The combination (only phone videos with zero robot demos on a ~{{const.budget_usd}} arm, the learner choosing which *human video* to request, detector-gated per-step retry, and an equal-human-time comparison) was not found in the review. With these results the defensible claims are the equal-time comparison and recovery findings, *in simulation*, plus the negative active-learning result and the ACT-delta pitfall. Re-run the literature search before submission, especially for EasyMimic follow-ups.
+
+## 8 Threats to validity
+
+1. **Simulated human and operator.** Both the video demonstrator and the teleoperator are models designed in this repo, so their relative quality is a modelling choice. Mitigations: operator sensitivity (fast operator: {{m4.teleop_fast_1x.all}}) and the teleop baseline's best configuration. These do not substitute for S2.
+2. **Grasp simplification** inflates absolute success for all methods.
+3. **Hyper-parameters** were chosen on validation cards (never eval), averaged over both sources. Single-seed validation is noisy.
+4. **Clustered trials.** 80 trials per seed share one policy, so pooled Wilson intervals are optimistic about between-seed variance. Teleop policies varied a lot between seeds (see the per-seed values in the result files).
+5. **Code changed during long runs** only in behaviour-neutral ways (logging/tracing, new experiment files). Result files record the commit and a dirty flag.
+6. **Scoring** in sim uses ground truth. On the real robot, auto-score + operator scores with a {{const.audit_frac}} video audit.
+
+## 9 What a real home robot product would require
+
+Robust grasping (compliant fingers or suction, force sensing, slip detection). Open-vocabulary perception (SAM 2 / FoundationPose-class) instead of colour classes. A learned hand-pose model that works on real phone video. Mobile or larger reach. Fully autonomous resets, or tasks that do not need them. Certified safety (power and force limiting, collaborative-robot standards) rather than a software filter on hobby servos. Failure handling with a human-in-the-loop UI. Months of in-home reliability testing across homes and objects.

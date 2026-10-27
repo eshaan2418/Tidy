@@ -128,8 +128,8 @@ def _records(st: dict):
 
     cards = [PlacementCard.from_json(v["card"]) for v in st["videos"] if v.get("source") == "sim"]
     if len(cards) != len(st["videos"]):
-        raise SystemExit("real clips: processing needs the real-video reader (perception/real_video.py) and "
-                         "fingertip caps or a hand-pose model; see HUMAN_TODO.md H5/H6")
+        raise SystemExit("real clips: run perception.real_video.process_clip on data/private/videos/<chore>/ (needs "
+                         "fingertip caps or a hand-pose model; first real run is HUMAN_TODO.md H5/H6)")
     return video_records(st["chore"], cards)
 
 

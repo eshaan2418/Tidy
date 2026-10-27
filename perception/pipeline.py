@@ -237,6 +237,19 @@ def object_points(mask: np.ndarray, depth: np.ndarray | None, K, R, t, obj: Obje
     return pts
 
 
+def size_plausible(pw: np.ndarray, obj: ObjectSpec) -> bool:
+    """Reject colour components far larger than the object class (known size from the object library)."""
+    xy = pw[:, :2]
+    r = float(np.percentile(np.linalg.norm(xy - xy.mean(axis=0), axis=1), 95))
+    if obj.kind == "box":
+        half = float(np.hypot(obj.size[0], obj.size[1]))
+    elif obj.kind == "cylinder":
+        half = float(obj.size[0])
+    else:
+        half = float(obj.size[0] + obj.size[1])
+    return r <= 1.6 * half + 0.01
+
+
 def object_estimate(pw: np.ndarray, obj: ObjectSpec) -> tuple[np.ndarray, float]:
     # use the upper part of the visible surface to estimate the footprint centre
     ztop = np.percentile(pw[:, 2], 90)

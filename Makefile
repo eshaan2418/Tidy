@@ -4,7 +4,7 @@ SESSION ?= S3
 export PYTHONPATH := $(CURDIR)
 export MPLBACKEND := Agg
 
-.PHONY: teach-demo mat figures setup test safety-test lint typecheck ci sim-smoke sim-eval process-videos train queue-session reproduce-quick reproduce-full paper check-claims scan
+.PHONY: release teach-demo mat figures setup test safety-test lint typecheck ci sim-smoke sim-eval process-videos train queue-session reproduce-quick reproduce-full paper check-claims scan
 
 setup:
 	uv venv .venv -p 3.12 && uv pip install -p $(PY) -r requirements.lock && uv pip install -p $(PY) -e . --no-deps
@@ -43,6 +43,9 @@ teach-demo:
 
 mat:
 	$(PY) -m hardware.make_mat
+
+release:
+	$(PY) -m bench.export_datasets && $(PY) -m hardware.make_mat
 
 figures:
 	$(PY) -m bench.make_figures

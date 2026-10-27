@@ -120,6 +120,18 @@ def registry() -> dict[str, tuple[str, str]]:
             if ops:
                 put(f"m4.{c}.operator_success", f"{sum(ops)}/{sum(n_demo)}", src)
         put("m4.n_trials_total", str(sum(len(sp["trials"]) for x in runs for sp in x["splits"].values())), src)
+    src = "sim/m4_teleop_augmented_desk_clearing"
+    r = _load(src)
+    if r:
+        for c, d in r["results"]["summary"].items():
+            put(f"m4aug.{c}.all", ci(both(d)), src)
+            put(f"m4aug.{c}.seen", ci(d["eval_seen"]["success"]), src)
+            put(f"m4aug.{c}.unseen", ci(d["eval_unseen_place"]["success"]), src)
+            put(f"m4aug.{c}.all.obj", ci(both(d, "objects")), src)
+        m4 = _load("sim/m4_video_vs_teleop_desk_clearing")
+        if m4 and "teleop_1x_aug" in r["results"]["summary"]:
+            put("m4aug.diff.video10_teleop1xaug", diff(both(m4["results"]["summary"]["video_10"]),
+                                                      both(r["results"]["summary"]["teleop_1x_aug"])), src)
     # ---------------- M5
     src = "sim/m5_active_desk_clearing"
     r = _load(src)
@@ -140,6 +152,20 @@ def registry() -> dict[str, tuple[str, str]]:
             pp, lo, hi = wilson(k, n)
             R[f"_m5.{st}.pooled"] = (json.dumps({"k": k, "n": n}), src)
             put(f"m5.{st}.pooled", ci({"p": pp, "lo": lo, "hi": hi}), src)
+        if "uncertainty" in S and "random" in S:
+            pa, pb = json.loads(R["_m5.uncertainty.pooled"][0]), json.loads(R["_m5.random.pooled"][0])
+            d, lo, hi = newcombe_diff(pa["k"], pa["n"], pb["k"], pb["n"])
+            if lo > 0:
+                v, st_, sh = ("Uncertainty-driven requests beat random requests.", "Moderate (sim)", "supported")
+            elif hi < 0:
+                v, st_, sh = ("Random requests beat uncertainty-driven requests.", "Negative result (sim)",
+                              "not supported")
+            else:
+                v, st_, sh = ("No significant difference between uncertainty-driven and random requests.",
+                              "Inconclusive / negative (sim)", "not supported")
+            put("m5.verdict", v, src)
+            put("m5.strength", st_, src)
+            put("m5.short", sh, src)
         for a, b in (("uncertainty", "random"), ("uncertainty", "round_robin")):
             if a in S and b in S:
                 put(f"m5.diff.final.{a}_{b}", diff(S[a][-1]["success_all"], S[b][-1]["success_all"]), src)

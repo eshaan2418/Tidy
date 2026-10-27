@@ -14,13 +14,14 @@ from __future__ import annotations
 
 import itertools
 from dataclasses import dataclass, field
+from typing import Any
 
 import cv2
 import mujoco
 import numpy as np
 
 from common.geometry import wrap_half_pi
-from perception.pipeline import hue_mask
+from perception.pipeline import hue_mask, size_plausible
 from sim.scene import HUES
 
 W, H = 320, 240
@@ -52,6 +53,7 @@ class OverheadPerceiver:
     hue_cal: dict[str, float] = field(default_factory=dict)
     stats: dict[str, int] = field(default_factory=lambda: {"seen": 0, "missed": 0})
     _cam: CameraModel | None = None
+    size_gate: Any = None   # ObjectSpec of the class being segmented (set per call in perceive)
 
     def reset(self) -> None:
         self.memory.clear()
@@ -99,6 +101,8 @@ class OverheadPerceiver:
             us, vs, z = us[keep], vs[keep], z[keep]
             pc = np.stack([(us - cam.K[0, 2]) * z / cam.K[0, 0], (vs - cam.K[1, 2]) * z / cam.K[1, 1], z], axis=1)
             pw = (cam.R.T @ (pc - cam.t).T).T + self.calib_offset
+            if self.size_gate is not None and not size_plausible(pw, self.size_gate):
+                continue
             ztop = float(np.percentile(pw[:, 2], 90))
             top = pw[pw[:, 2] > ztop - 0.006]
             if len(top) < 3:
@@ -128,7 +132,9 @@ class OverheadPerceiver:
                 continue
             o = env.obj_by_name[n]
             members = groups[(o.color, o.kind, tuple(o.size))]
+            self.size_gate = o
             comps = self._components(env, rgb, depth, o.color, o.height)
+            self.size_gate = None
             # other-shaped objects of the same colour: drop components that better match them by size
             comps.sort(key=lambda c: -c[2])
             comps = comps[: max(len(members), 1) + 2]
@@ -204,6 +210,8 @@ class RayPlanePerceiver(OverheadPerceiver):
             o_w = -cam.R.T @ cam.t                        # camera centre
             s = (height - o_w[2]) / d_w[:, 2]
             pw = o_w + s[:, None] * d_w + self.calib_offset
+            if self.size_gate is not None and not size_plausible(pw, self.size_gate):
+                continue
             xy = pw[:, :2].mean(axis=0)
             yaw = 0.0
             if len(pw) >= 5:

@@ -445,7 +445,7 @@ class Condition:
 
 
 def ckey(c: Condition) -> str:
-    return f"{c.name}@{c.seed}"
+    return f"{c.chore}/{c.name}@{c.seed}"
 
 
 def train_conditions(conds: list[Condition]) -> dict[str, list]:

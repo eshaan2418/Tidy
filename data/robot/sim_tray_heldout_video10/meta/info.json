@@ -1,0 +1,27 @@
+{
+ "codebase_version": "v2.0-style (Tidy export; low-dim, no video)",
+ "fps": 10,
+ "total_episodes": 20,
+ "total_frames": 1463,
+ "robot_type": "so100-class (sim twin)",
+ "features": {
+  "observation.state": {
+   "dtype": "float32",
+   "shape": [
+    26
+   ],
+   "names": "see policies/spec.py"
+  },
+  "action": {
+   "dtype": "float32",
+   "shape": [
+    7
+   ],
+   "names": "see policies/spec.py"
+  }
+ },
+ "dataset_hash": "e5d429a426133ba48ada27399a67b3051329782da4cbeac4052ec00059a4d641",
+ "stage": "sim",
+ "source": "synthetic phone video",
+ "chore": "tray_heldout"
+}

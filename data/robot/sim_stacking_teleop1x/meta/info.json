@@ -1,0 +1,34 @@
+{
+ "codebase_version": "v2.0-style (Tidy export; low-dim, no video)",
+ "fps": 10,
+ "total_episodes": 12,
+ "total_frames": 1106,
+ "robot_type": "so100-class (sim twin)",
+ "features": {
+  "observation.state": {
+   "dtype": "float32",
+   "shape": [
+    26
+   ],
+   "names": "see policies/spec.py"
+  },
+  "action": {
+   "dtype": "float32",
+   "shape": [
+    7
+   ],
+   "names": "see policies/spec.py"
+  }
+ },
+ "dataset_hash": "326b5964c4e84f73fc4e65583f68385d1ccf1f59f92878d1e153e2ac8ae48627",
+ "stage": "sim",
+ "source": "simulated teleop",
+ "chore": "stacking",
+ "human_min": {
+  "total_min": 5.65,
+  "by_kind_min": {
+   "teleop": 3.31,
+   "reset": 2.33
+  }
+ }
+}
