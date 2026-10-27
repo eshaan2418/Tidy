@@ -10,6 +10,8 @@ For each observed pick-place segment:
      waypoints are rejected.
   5. temporal smoothing + arc-length time scaling to the robot's speed limit (10 Hz ticks), with dwell
      ticks for the rate-limited gripper.
+`hand` mode (ablation "-object-centric"): grasp/place targets from the hand keypoints only (no snapping to the
+tracked object pose, D-020).
 `raw` mode (ablation "-retargeting") uses the wrist trajectory as the TCP, keeps the human timing
 profile (scaled), and derives jaw yaw from the hand heading -- i.e., no embodiment-aware mapping.
 """
@@ -107,6 +109,22 @@ def _resample_human(c: np.ndarray, yaw: np.ndarray, grip: np.ndarray) -> list[Wa
     return out
 
 
+def object_centric_grasp(gpos: np.ndarray, gyaw: float, pk: PickPlace, obj: ObjectSpec) -> tuple[np.ndarray, float]:
+    """Fuse the (noisy) hand grasp pose with the tracked object pose (D-020): grasp xy = object rest xy when the
+    hand is within 3 cm of it; height clipped to the object's body; for elongated objects the jaw axis snaps to
+    the object axis (major or minor) closest to the hand's thumb-index axis, so the human still chooses it."""
+    g = gpos.copy()
+    if not np.any(np.isnan(pk.pick_pos)) and np.linalg.norm(pk.pick_pos[:2] - g[:2]) < 0.03:
+        g[:2] = pk.pick_pos[:2]
+    g[2] = float(np.clip(g[2], 0.35 * obj.height, max(0.65 * obj.height, 0.014)))
+    yaw = gyaw
+    if obj.kind in ("box", "capsule") and not np.isnan(pk.pick_yaw):
+        cands = [pk.pick_yaw, pk.pick_yaw + np.pi / 2]
+        yaw = float(min(cands, key=lambda a: abs(float(wrap_half_pi(a - gyaw)))))
+        yaw = float(wrap_half_pi(yaw))
+    return g, yaw
+
+
 def retarget_pick(seg: Segmentation, pk: PickPlace, obj: ObjectSpec, fps: int, mode: str = "full",
                   start: Waypoint | None = None) -> RetargetedSegment:
     T = len(seg.thumb)
@@ -140,9 +158,11 @@ def retarget_pick(seg: Segmentation, pk: PickPlace, obj: ObjectSpec, fps: int, m
         gyaw = float(np.nanmedian(yaw[g_win])) if np.any(~np.isnan(yaw[g_win])) else pk.pick_yaw + np.pi / 2
         if np.any(np.isnan(gpos)):
             gpos = pk.pick_pos.copy()
+        if mode == "full":
+            gpos, gyaw = object_centric_grasp(gpos, gyaw, pk, obj)
         gpos[2] = max(gpos[2], floor + 0.001)
         pre_open = float(np.clip(np.nanmax(open_w[max(i0, ig - fps):ig + 1]) if ig > i0 else 2 * half + 0.03,
-                                 2 * half + 0.01, GEOM.max_opening))
+                                 2 * half + 0.025, GEOM.max_opening))
         g_open = opening_to_cmd(pre_open)
         # 1) reach: human path at robot speed until ~6 cm above the grasp point, with clearance lifting
         above = gpos + np.array([0, 0, 0.06])
@@ -157,6 +177,10 @@ def retarget_pick(seg: Segmentation, pk: PickPlace, obj: ObjectSpec, fps: int, m
         rpos = np.nanmedian(c[max(ig, ir - 3):ir + 2], axis=0) if ir > ig else pk.place_pos + np.array([0, 0, 0.03])
         if np.any(np.isnan(rpos)):
             rpos = pk.place_pos + np.array([0, 0, obj.height / 2 + 0.01])
+        if mode == "full" and not np.any(np.isnan(pk.place_pos)):
+            # object-centric place target: where the object came to rest (tracked) in xy, hand release height
+            if np.linalg.norm(pk.place_pos[:2] - rpos[:2]) < 0.05:
+                rpos[:2] = pk.place_pos[:2]
         rpos[2] = max(rpos[2], floor + 0.001)
         lift = gpos + np.array([0, 0, 0.0])
         lift[2] = max(TRANSIT_Z, gpos[2] + 0.05)

@@ -52,14 +52,28 @@ class DemoRecord:
     key_frame: np.ndarray | None = None                  # small RGB frame for demo-request UIs/figures
 
 
+_CODE_FILES = ("perception/pipeline.py", "perception/video_dataset.py", "phases/events.py", "phases/program.py",
+               "retarget/hand2gripper.py", "sim/human_demo.py", "sim/scene.py", "policies/spec.py")
+
+
+def code_version() -> str:
+    """Hash of the processing code, so cached demos are invalidated when the pipeline changes."""
+    import hashlib
+
+    h = hashlib.sha256()
+    for f in _CODE_FILES:
+        h.update((REPO_ROOT / f).read_bytes())
+    return h.hexdigest()[:10]
+
+
 def _cache_path(chore: str, card_seed: int, demo_seed: int, variant: str) -> Path:
-    return CACHE / chore / f"{card_seed}_{demo_seed}_{variant}.pkl"
+    return CACHE / chore / code_version() / f"{card_seed}_{demo_seed}_{variant}.pkl"
 
 
 def process_demo(chore_name: str, card: PlacementCard, demo_seed: int, variant: str = "full",
                  hand_source: str = "sim_estimator", noise: HandEstimatorNoise | None = None,
                  rgb_only: bool = False, use_cache: bool = True) -> DemoRecord:
-    """variant: full | raw (no retargeting). hand_source: sim_estimator | caps."""
+    """variant: full | hand (no object-centric snapping) | raw (no retargeting). hand_source: sim_estimator | caps."""
     tag = f"{variant}_{hand_source}" + ("_rgb" if rgb_only else "") + (
         f"_n{noise.sigma_xy:.3f}_{noise.sigma_z:.3f}" if noise else "")
     path = _cache_path(chore_name, card.seed, demo_seed, tag)

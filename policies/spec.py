@@ -48,12 +48,19 @@ def size_feats(o: ObjectSpec) -> np.ndarray:
     return np.array([o.height, long, short]) * 10.0
 
 
+def obj_yaw_feat(o: ObjectSpec, yaw: float) -> np.ndarray:
+    """Upright cylinders are rotationally symmetric: their perceived yaw is noise, so it is not observed."""
+    if o.kind == "cylinder":
+        return np.zeros(2)
+    return yaw_feat(yaw)
+
+
 def obs_vector(v: View) -> np.ndarray:
     cat = np.zeros(len(CATEGORIES))
     cat[CATEGORIES.index(v.obj.category)] = 1.0
     return np.concatenate([
         v.ee_pos * 5.0, yaw_feat(v.ee_yaw), [v.pitch], [v.opening / GEOM.max_opening], [v.grip_cmd],
-        (v.obj_pos - v.ee_pos) * 10.0, yaw_feat(v.obj_yaw), cat, size_feats(v.obj),
+        (v.obj_pos - v.ee_pos) * 10.0, obj_yaw_feat(v.obj, v.obj_yaw), cat, size_feats(v.obj),
         (v.goal_pos - v.ee_pos) * 10.0,
     ]).astype(np.float32)
 

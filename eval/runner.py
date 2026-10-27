@@ -68,6 +68,10 @@ class StepRecord:
     perceived_obj: np.ndarray | None = None
     goal: np.ndarray | None = None
     release_xy_err: float | None = None
+    final_perceived: np.ndarray | None = None   # object pose seen by the robot camera after the step
+    grip_closed_open: float | None = None       # jaw opening when the gripper was last commanded closed
+    lifted_ticks: int = 0                       # ticks the TCP rose while the gripper was commanded closed
+    pre_ticks: int = 0                          # executor ready-pose ticks before the agent took over
     frames: list[np.ndarray] = field(default_factory=list)
 
 
@@ -89,10 +93,15 @@ class EpisodeResult:
         return {k: float(np.mean([getattr(s, k) for s in self.steps])) for k in keys}
 
 
-def make_env(chore: ChoreSpec, card: PlacementCard, include_hand: bool = False) -> TidyEnv:
+def make_env(chore: ChoreSpec, card: PlacementCard, include_hand: bool = False,
+             distractors: list[str] | None = None) -> TidyEnv:
+    """`distractors`: library names of extra clutter objects (M7), placed via card.placement poses if present."""
+    from sim.scene import LIB
+
     light, tint = LIGHTING[card.lighting]
+    dis = [LIB[n] for n in (distractors or [])]
     return TidyEnv(chore.object_specs(card.subs), chore.fixture_specs(), include_hand=include_hand,
-                   light_scale=light, light_tint=tint)
+                   light_scale=light, light_tint=tint, distractors=dis)
 
 
 def make_view(env: TidyEnv, obj: ObjectSpec, obj_pos: np.ndarray, obj_yaw: float, goal: np.ndarray) -> View:
@@ -107,10 +116,34 @@ def release_in_goal_region(spec: PlaceGoal, p: np.ndarray, goal: np.ndarray, env
     return float(np.linalg.norm(p[:2] - goal[:2])) < 0.02
 
 
+def ready_pose(env: TidyEnv, max_ticks: int = 20) -> int:
+    """Executor primitive run before EVERY object step, identical for all agents and data sources (D-023):
+    if the jaw is closed, open it part-way; then rise vertically to transit height. Every step therefore starts
+    from the same kind of state as in the demonstrations (above the scene, jaw open), instead of wherever a
+    failed previous step left the arm. Returns the ticks used."""
+    from sim.expert import TRANSIT_Z
+
+    ticks = 0
+    if env.g_cmd > 0.5:
+        ee, yaw, pitch = env.ee_state()
+        for _ in range(4):
+            env.step(EEAction(ee, yaw, pitch, 0.3))
+            ticks += 1
+    for _ in range(max_ticks):
+        ee, yaw, pitch = env.ee_state()
+        if ee[2] >= TRANSIT_Z - 0.005:
+            break
+        target = np.array([ee[0], ee[1], min(TRANSIT_Z, ee[2] + 0.016)])
+        env.step(EEAction(target, yaw, pitch, env.g_cmd))
+        ticks += 1
+    return ticks
+
+
 def run_object_step(env: TidyEnv, agent: Agent, chore: ChoreSpec, name: str, goal_spec: PlaceGoal,
                     perceiver: Perceiver, record: bool = False, timeout: int = STEP_TIMEOUT,
                     render_every: int = 0, monitor=None) -> StepRecord:
     obj = env.obj_by_name[name]
+    pre_ticks = ready_pose(env)
     seen = perceiver.perceive(env, [name] + ([goal_spec.landmark.split(":", 1)[1]]
                                              if goal_spec.landmark.startswith("object:") else []))
     op, oy = seen[name]
@@ -120,7 +153,7 @@ def run_object_step(env: TidyEnv, agent: Agent, chore: ChoreSpec, name: str, goa
         goal = np.array([lp[0], lp[1], lp[2] - env.obj_by_name[ln].height / 2]) + np.array(goal_spec.offset)
     else:
         goal = landmark_position(goal_spec.landmark, env) + np.array(goal_spec.offset)
-    rec = StepRecord(name, perceived_obj=op.copy(), goal=goal.copy())
+    rec = StepRecord(name, perceived_obj=op.copy(), goal=goal.copy(), pre_ticks=pre_ticks)
     true_spec = chore.program.get(name)
     true_goal = None
     if true_spec is not None:  # scoring uses the TRUE task program and GT poses, never the inferred one
@@ -139,7 +172,12 @@ def run_object_step(env: TidyEnv, agent: Agent, chore: ChoreSpec, name: str, goa
         true_p, _ = env.obj_pose(name)
         if env.g_cmd < 0.5 and not ever_attached:
             rec.min_xy_dist_open = min(rec.min_xy_dist_open, float(np.linalg.norm(v.ee_pos[:2] - true_p[:2])))
+        z_before = float(v.ee_pos[2])
         info = env.step(a, monitor_rgb=monitor(env) if monitor else None)
+        if a.gripper > 0.8:
+            rec.grip_closed_open = env.opening()
+            if env.ee_state()[0][2] > z_before + 0.002:
+                rec.lifted_ticks += 1
         if render_every and t % render_every == 0:
             rec.frames.append(env.render("overhead", 160, 120))
         if env.attached == name:
@@ -160,6 +198,7 @@ def run_object_step(env: TidyEnv, agent: Agent, chore: ChoreSpec, name: str, goa
     rec.reached = rec.min_xy_dist_open < 0.02 or ever_attached
     env.settle(60)
     rec.placed = true_spec is not None and object_at_goal(chore, name, env)
+    rec.final_perceived = perceiver.perceive(env, [name])[name][0].copy()
     return rec
 
 
@@ -200,6 +239,6 @@ def run_episode(chore: ChoreSpec, card: PlacementCard, agent: Agent, perceiver: 
             break
         remaining.remove(name)
     succ = chore_success(chore, env, initial)
-    total_ticks = sum(s.ticks for s in steps)
+    total_ticks = sum(s.ticks + s.pre_ticks for s in steps)
     return EpisodeResult(succ["success"], succ["n_done"], succ["n_total"], steps, total_ticks,
                          list(env.safety_events), succ["per_object"], card.to_json())
