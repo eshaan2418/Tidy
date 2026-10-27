@@ -48,7 +48,7 @@ release:
 	$(PY) -m bench.export_datasets && $(PY) -m hardware.make_mat
 
 figures:
-	$(PY) -m bench.make_figures
+	$(PY) -m bench.make_figures && $(PY) -m bench.render_montage
 
 reproduce-quick:
 	$(PY) -m bench.reproduce --quick

@@ -168,14 +168,14 @@ Recovery vs none: {{m6.diff.recovery}}; vs blind retry: {{m6.diff.recovery_vs_bl
 
 **Table 4: seen-placement full-chore success per chore (sim).** All rows use {{const.n_videos}} videos or equal-time teleop.
 
-| Chore | Video (10 clips) | Teleop (1×) | Video − teleop | Human min (video) | Time per successful chore |
-|---|---|---|---|---|---|
-| sorting | {{m7.sorting.video_10.seen}} | {{m7.sorting.teleop_1x.seen}} | {{m7.diff.sorting}} | {{m7.sorting.video_10.min}} | {{m7.sorting.video_10.time}} |
-| shelf put-away | {{m7.shelf_putaway.video_10.seen}} | {{m7.shelf_putaway.teleop_1x.seen}} | {{m7.diff.shelf_putaway}} | {{m7.shelf_putaway.video_10.min}} | {{m7.shelf_putaway.video_10.time}} |
-| stacking | {{m7.stacking.video_10.seen}} | {{m7.stacking.teleop_1x.seen}} | {{m7.diff.stacking}} | {{m7.stacking.video_10.min}} | {{m7.stacking.video_10.time}} |
-| held-out tray (video only at test time) | {{m7.tray_heldout.video_10.seen}} | {{m7.tray_heldout.teleop_1x.seen}} | {{m7.diff.tray_heldout}} | {{m7.tray_heldout.video_10.min}} | {{m7.tray_heldout.video_10.time}} |
-| held-out tray, multi-chore pre-training | {{m7.tray_heldout.video_10_multipre.seen}} | — | {{m7.diff.multipre}} vs from scratch | {{m7.tray_heldout.video_10_multipre.min}} | {{m7.tray_heldout.video_10_multipre.time}} |
-| towel folding (deformable) | not run (no cloth model, B-004) | — | — | — | — |
+| Chore | Video (10 clips) | Teleop (1×) | Video − teleop | Items placed, video / teleop | Human min (video) | Time per successful chore |
+|---|---|---|---|---|---|---|
+| sorting | {{m7.sorting.video_10.seen}} | {{m7.sorting.teleop_1x.seen}} | {{m7.diff.sorting}} | {{m7.sorting.video_10.seen.obj}} / {{m7.sorting.teleop_1x.seen.obj}} | {{m7.sorting.video_10.min}} | {{m7.sorting.video_10.time}} |
+| shelf put-away | {{m7.shelf_putaway.video_10.seen}} | {{m7.shelf_putaway.teleop_1x.seen}} | {{m7.diff.shelf_putaway}} | {{m7.shelf_putaway.video_10.seen.obj}} / {{m7.shelf_putaway.teleop_1x.seen.obj}} | {{m7.shelf_putaway.video_10.min}} | {{m7.shelf_putaway.video_10.time}} |
+| stacking | {{m7.stacking.video_10.seen}} | {{m7.stacking.teleop_1x.seen}} | {{m7.diff.stacking}} | {{m7.stacking.video_10.seen.obj}} / {{m7.stacking.teleop_1x.seen.obj}} | {{m7.stacking.video_10.min}} | {{m7.stacking.video_10.time}} |
+| held-out tray (video only at test time) | {{m7.tray_heldout.video_10.seen}} | {{m7.tray_heldout.teleop_1x.seen}} | {{m7.diff.tray_heldout}} | {{m7.tray_heldout.video_10.seen.obj}} / {{m7.tray_heldout.teleop_1x.seen.obj}} | {{m7.tray_heldout.video_10.min}} | {{m7.tray_heldout.video_10.time}} |
+| held-out tray, multi-chore pre-training | {{m7.tray_heldout.video_10_multipre.seen}} | — | {{m7.diff.multipre}} vs from scratch | {{m7.tray_heldout.video_10_multipre.seen.obj}} | {{m7.tray_heldout.video_10_multipre.min}} | {{m7.tray_heldout.video_10_multipre.time}} |
+| towel folding (deformable) | not run (no cloth model, B-004) | — | — | — | — | — |
 
 **Table 5: generalization, desk clearing, items placed (sim).**
 

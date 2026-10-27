@@ -134,18 +134,16 @@ def main() -> None:
     t0 = time.time()
     seeds = [0] if args.quick else list(range(args.seeds))
     n = 6 if args.quick else None
-    payload: dict[str, Any] = {}
-    if "a" in args.part:
-        payload["part_a"] = part_a(seeds, n)
-    if "b" in args.part:
-        payload["part_b"] = part_b(seeds, n)
-    payload["towel_folding"] = ("not run: the digital twin has no deformable-object model; real-robot folding is "
-                                "queued in SESSION_QUEUE.md (awaiting-human)")
-    payload["wall_s"] = time.time() - t0
-    out = write_result("sim/m7_multichore" + ("_quick" if args.quick else "") + ("" if args.part == "ab" else
-                                                                                 f"_{args.part}"),
-                       payload, stage="sim", config=vars(args), seed=0, command=cmdline())
-    print("wrote", out)
+    towel = ("not run: the digital twin has no deformable-object model; real-robot folding is queued in "
+             "SESSION_QUEUE.md (awaiting-human)")
+    q = "_quick" if args.quick else ""
+    for part, fn in (("a", part_a), ("b", part_b)):   # each part is written as soon as it finishes
+        if part in args.part:
+            payload: dict[str, Any] = {f"part_{part}": fn(seeds, n), "towel_folding": towel,
+                                       "wall_s": time.time() - t0}
+            out = write_result(f"sim/m7_multichore{q}_{part}", payload, stage="sim", config=vars(args), seed=0,
+                               command=cmdline())
+            print("wrote", out)
 
 
 if __name__ == "__main__":

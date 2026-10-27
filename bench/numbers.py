@@ -204,10 +204,10 @@ def registry() -> dict[str, tuple[str, str]]:
             put("m6.diff.blind", diff(P["blind_retry_once"], P["no_recovery"]), src)
             put("m6.diff.recovery_vs_blind", diff(P["recovery"], P["blind_retry_once"]), src)
     # ---------------- M7
-    src = "sim/m7_multichore"
-    r = _load(src)
-    if r:
-        A = r["results"].get("part_a", {}).get("table", {})
+    ra, rb = _load("sim/m7_multichore_a"), _load("sim/m7_multichore_b")
+    if ra or rb:
+        src = "sim/m7_multichore_a"
+        A = (ra or {"results": {}})["results"].get("part_a", {}).get("table", {})
         for k, d in A.items():
             key = k.replace("/", ".")
             put(f"m7.{key}.seen", ci(d["eval_seen"]["success"]), src)
@@ -224,7 +224,8 @@ def registry() -> dict[str, tuple[str, str]]:
         a, b = A.get("tray_heldout/video_10_multipre"), A.get("tray_heldout/video_10")
         if a and b:
             put("m7.diff.multipre", diff(a["eval_seen"]["success"], b["eval_seen"]["success"]), src)
-        M = r["results"].get("part_b", {}).get("matrix", {})
+        src = "sim/m7_multichore_b"
+        M = (rb or {"results": {}})["results"].get("part_b", {}).get("matrix", {})
         for k, d in M.items():
             key = k.replace("/", ".")
             put(f"m7.gen.{key}", ci(d["success"]), src)

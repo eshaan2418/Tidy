@@ -6,7 +6,7 @@ The learned system never reads `program`; it infers the task program from videos
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 
 import numpy as np
 
@@ -32,8 +32,9 @@ class ChoreSpec:
     description: str = ""
 
     def object_specs(self, subs: dict[str, str] | None = None) -> list[ObjectSpec]:
+        # a substituted (unseen) object keeps the chore's slot name so the task program still refers to it
         subs = subs or {}
-        return [LIB[subs.get(n, n)] for n in self.objects]
+        return [replace(LIB[subs[n]], name=n) if n in subs else LIB[n] for n in self.objects]
 
     def fixture_specs(self) -> list[FixtureSpec]:
         return [FIXTURES[f] for f in self.fixtures]

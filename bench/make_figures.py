@@ -51,11 +51,11 @@ def _bars(ax, labels, groups: list[list[dict]], names: list[str]) -> None:
         xs = x - 0.4 + w * (g + 0.5)
         ax.bar(xs, p, w - 0.02, color=C[g], label=nm, zorder=2)
         ax.errorbar(xs, p, yerr=[lo, hi], fmt="none", ecolor=INK2, lw=0.8, capsize=2, zorder=3)
-        for xx, pp in zip(xs, p):
-            ax.text(xx, pp + 1.5, f"{pp:.0f}", ha="center", va="bottom", fontsize=6.5, color=INK)
+        for xx, pp, top in zip(xs, p, p + hi):
+            ax.text(xx, top + 1.0, f"{pp:.0f}", ha="center", va="bottom", fontsize=6, color=INK)
     ax.set_xticks(x)
     ax.set_xticklabels(labels, rotation=30, ha="right", fontsize=7.5)
-    ax.set_ylim(0, 105)
+    ax.set_ylim(0, 108)
 
 
 def fig_m4() -> str | None:
@@ -140,9 +140,10 @@ def fig_m6() -> str | None:
 
 
 def fig_m7() -> str | None:
-    r = _load("sim/m7_multichore")
-    if r is None:
+    ra, rb = _load("sim/m7_multichore_a"), _load("sim/m7_multichore_b")
+    if ra is None and rb is None:
         return None
+    r = {**(ra or {}), **(rb or {})}
     outs = []
     if "part_a" in r:
         t = r["part_a"]["table"]

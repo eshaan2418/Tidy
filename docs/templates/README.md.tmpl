@@ -34,7 +34,11 @@
 
 Bracketed ranges are Wilson {{const.ci}} intervals over {{const.seeds}} independent data collections × ({{const.trials_seen}} seen + {{const.trials_unseen}} unseen placement) trials. Differences are in percentage points with Newcombe intervals. Full tables, ablations, figures and limitations: [`paper/paper.md`](paper/paper.md). Honest summary: [`FINAL_REVIEW.md`](FINAL_REVIEW.md).
 
-**Trial-video montage.** Real trial videos will appear here after session S2 (faces never in frame). Sim rollouts can be rendered with `scripts/supervised_session.py eval --sim`, and its videos are written to `results/sim_sessions/`.
+**Trial-video montage (sim).** The video_10 policy on three frozen evaluation placements, from the overhead camera (`bench/render_montage.py`):
+
+![sim rollout](paper/figures/sim_rollout.gif)
+
+Real trial videos replace this after session S2 (faces never in frame).
 
 ## Quick start
 

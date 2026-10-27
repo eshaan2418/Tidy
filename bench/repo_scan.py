@@ -12,7 +12,8 @@ import sys
 
 from common.provenance import REPO_ROOT
 
-MAX_BYTES = 5 * 1024 * 1024
+MAX_BYTES = 5 * 1024 * 1024            # binaries / anything else
+MAX_RESULT_JSON = 50 * 1024 * 1024     # per-trial result records (text, compress ~8x in git)
 VIDEO_EXT = (".mp4", ".mov", ".avi", ".mkv", ".heic", ".m4v", ".r3d", ".exr")
 SECRET_PATTERNS = [
     (r"AKIA[0-9A-Z]{16}", "aws access key"),
@@ -50,7 +51,8 @@ def scan() -> list[str]:
             findings.append(f"private data in history: {p}")
         if p.lower().endswith(VIDEO_EXT):
             findings.append(f"video file in history: {p}")
-        if int(size) > MAX_BYTES:
+        limit = MAX_RESULT_JSON if (p.startswith("results/") and p.endswith(".json")) else MAX_BYTES
+        if int(size) > limit:
             findings.append(f"large file ({int(size) / 1e6:.1f} MB): {p}")
         if int(size) < 2_000_000 and not p.endswith((".png", ".pdf", ".pt", ".pkl", ".npz", ".jpg")):
             text = subprocess.run(["git", "cat-file", "-p", sha], cwd=REPO_ROOT, capture_output=True).stdout.decode(

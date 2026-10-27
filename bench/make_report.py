@@ -55,8 +55,11 @@ FINDINGS = {  # one-line finding per result file, written with registry keys (re
                                    "{{m5.random.pooled}}, round-robin {{m5.round_robin.pooled}}",
     "sim/m6_recovery_desk_clearing": "no recovery {{m6.no_recovery}}, detector+retry {{m6.recovery}}, oracle "
                                      "{{m6.oracle_recovery}}; detector P/R {{m6.det.test.prec}}/{{m6.det.test.rec}}",
-    "sim/m7_multichore": "seen success video/teleop: sorting {{m7.sorting.video_10.seen}} / "
+    "sim/m7_multichore_a": "seen success video/teleop: sorting {{m7.sorting.video_10.seen}} / "
                          "{{m7.sorting.teleop_1x.seen}}, held-out tray {{m7.tray_heldout.video_10.seen}}",
+    "sim/m7_multichore_b": "items placed, video_10: nominal {{m7.gen.video_10.nominal.obj}}, unseen objects "
+                           "{{m7.gen.video_10.unseen_objects.obj}}, camera bump 2 cm "
+                           "{{m7.gen.video_10.camera_bump_2cm.obj}}",
     "sim/m8_teach_tray_heldout": "app walkthrough: {{m8.minutes}} human min, final try {{m8.try_last}}",
     "sim/safety_audit": "{{safety.incidents}} measured-state limit violations in {{safety.ticks}} ticks",
     "sim/dev_policy_design_desk_clearing": "validation: default {{dev.video_10|cumulative_minimal (default)}} items "
