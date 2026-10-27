@@ -136,8 +136,9 @@ class RecoveryHook:
     """step_hook for eval.runner.run_episode: retry a failed object step up to `max_retries` times."""
 
     def __init__(self, chore, perceiver, detector_path: str | None = None, detector: FailureDetector | None = None,
-                 max_retries: int = 2, oracle: bool = False):
+                 max_retries: int = 2, oracle: bool = False, blind: bool = False):
         self.chore = chore
+        self.blind = blind    # baseline: retry every step once without a detector (same retry machinery)
         self.oracle = oracle  # upper bound: simulator truth instead of the learned detector (never deployable)
         self.perceiver = perceiver
         self.det = detector or FailureDetector.load(Path(detector_path))  # type: ignore[arg-type]
@@ -149,6 +150,8 @@ class RecoveryHook:
         failed, phase, p = self.det.judge(x)
         if self.oracle:
             failed, phase = (not rec.placed), ("grasp" if not rec.grasped else "place")
+        if self.blind:
+            failed = rec.attempt == 0
         entry = {"obj": rec.obj, "attempt": rec.attempt, "flagged": bool(failed), "phase": phase, "p_ok": p,
                  "true_placed": bool(rec.placed)}
         if failed and rec.attempt < self.max_retries:
@@ -156,6 +159,6 @@ class RecoveryHook:
             entry["action"] = "retry"
             self.log.append(entry)
             return "retry"
-        entry["action"] = "help" if failed else "next"
+        entry["action"] = "help" if failed and not self.blind else "next"
         self.log.append(entry)
-        return "help" if failed else "next"
+        return "help" if failed and not self.blind else "next"

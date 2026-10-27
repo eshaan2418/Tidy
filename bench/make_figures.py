@@ -127,7 +127,7 @@ def fig_m6() -> str | None:
     r = _load("sim/m6_recovery_desk_clearing")
     if r is None:
         return None
-    modes = ["no_recovery", "recovery", "oracle_recovery"]
+    modes = [m for m in ("no_recovery", "blind_retry_once", "recovery", "oracle_recovery") if m in r["pooled"]]
     fig, ax = plt.subplots(figsize=(4.2, 3.2), facecolor=SURF)
     _bars(ax, [m.replace("_", " ") for m in modes], [[r["pooled"][m] for m in modes]], ["full-chore success"])
     _style(ax, "Full-chore success (%), 95% CI")

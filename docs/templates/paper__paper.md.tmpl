@@ -1,0 +1,212 @@
+# Tidy: Teaching a Low-Cost Arm Household Chores from a Few Phone Videos, with Uncertainty-Driven Demo Requests and Per-Step Recovery
+
+*Draft. Every number in this paper is regenerated from `results/` by `make paper`, and `bench/check_claims.py` fails the build otherwise. **Evidence stage: all numbers are `sim`** (MuJoCo digital twin of an SO-100-class arm, synthetic phone videos). No real-robot result exists yet: the hardware has not been bought (BLOCKERS B-001). The real sessions are fully scripted in `SESSION_QUEUE.md`.*
+
+## Abstract
+
+We ask whether a ~{{const.budget_usd}} robot arm can learn household tabletop chores from about {{const.n_videos}} phone videos of a person doing the chore, with no teleoperation, and whether letting the robot choose which extra video to request helps. Tidy turns each video into hand, object and contact tracks. It retargets the human grasps to a parallel gripper with object-centric targets and trains an ACT policy on the resulting pseudo-demonstrations. A bootstrap ensemble supplies uncertainty for demo requests, and a per-step failure detector triggers local retries. In a digital twin of the workspace, and at equal human teaching time, the policy learned from {{const.n_videos}} videos clears the desk (four items into a bin) in {{m4.video_10.all}} of trials (seen + unseen placements, {{const.seeds}} seeds). The teleoperation-trained policy reaches {{m4.teleop_1x.all}}, a difference of {{m4.diff.video10_teleop1x}}. Teleop at four times the human time reaches {{m4.teleop_4x.all}}. Embodiment-aware retargeting is essential: raw hand trajectories give {{m4.video_raw.all}}, and dropping the object-centric targets gives {{m4.video_hand.all}}. Uncertainty-driven requests did **not** reliably beat random requests: the difference over rounds 1–5 was {{m5.diff.pooled.uncertainty_random}}. Learned failure detection with retry changes full-chore success by {{m6.diff.recovery}}. These are simulation results with a simulated human and a simulated operator. The paper is explicit about which conclusions could flip on real hardware.
+
+## 1 Introduction
+
+Low-cost arms such as the SO-100/SO-101 make manipulation research affordable, but teaching them still mostly means teleoperation: a leader arm, practice, and many demonstrations. A phone video of a person doing the chore is far cheaper to make. The question is whether it carries enough information for a robot with a different body, and whether the robot can steer the person toward the demonstrations it needs.
+
+We study three questions, all at the `sim` stage in this draft:
+
+1. **Video vs teleop at equal human time.** Does a policy trained only on retargeted pseudo-demonstrations from ~{{const.n_videos}} phone videos reach the success of a teleop-trained policy given the same number of human minutes (filming, set-up and resets are all counted)?
+2. **Uncertainty-driven demo requests.** If the robot asks for the extra video it is most uncertain about, does it improve faster than with random or round-robin requests at the same number of videos?
+3. **Per-step failure detection and recovery.** Does a learned detector that triggers a safe retreat and a retry of the failed object step raise full-chore success?
+
+**Contributions** (stated conservatively, following the prior-work review in `docs/PRIOR_WORK.md`; no component is claimed to be first):
+(i) an end-to-end, open, tested pipeline from phone video to an SO-100-class policy with no robot demonstrations, including a safety layer enforced in code;
+(ii) an equal-human-time comparison against teleoperation, with every human second accounted for;
+(iii) a closed loop in which the learner requests the next *human video* (not a teleop correction), compared against random and round-robin requests;
+(iv) a per-step failure detector with retry, plus a detector-free retry baseline and an oracle upper bound;
+(v) negative and diagnostic results that matter for anyone building this. Delta-action chunking with ACT-style temporal ensembling silently fails when the arm lags the demonstrator. Corrective augmentation hurt. Self-practice was not worth its supervision cost.
+
+## 2 Related work
+
+Full annotated review with verified citations: `docs/PRIOR_WORK.md`. **Learning from human video.** Phantom and Masquerade train robot policies from human videos with little or no robot data by editing or retargeting the human embodiment. ZeroMimic, X-Sim, HumanEgo and EgoZero distil skills from egocentric or web video. WHIRL combines human video with robot self-practice. EasyMimic is the closest work: it uses the same class of low-cost LeRobot arm and the same video-to-gripper idea, but it co-trains with robot data and has no active requests or recovery. **Retargeting and perception.** We follow the common thumb–index-to-parallel-jaw mapping (e.g., Phantom, EasyMimic). The perception stack the real system targets (HaMeR/WiLoR hands, SAM 2 masks, CoTracker tracks, FoundationPose, Depth Anything) is replaced in sim by colour/depth stand-ins and a simulated hand estimator with a measured error model. **Policies.** ACT (Zhao et al., 2023) and Diffusion Policy (Chi et al., 2023) on LeRobot. VLA fine-tuning (OpenVLA, π0, SmolVLA) is out of reach without a GPU (BLOCKERS B-002). **Active and interactive imitation.** DAgger-family methods, EnsembleDAgger, ThriftyDAgger and Diff-DAgger query for *action labels* using novelty or uncertainty. AMF chooses which task to request demonstrations for. We request whole new *human videos* at chosen placements. **Failure detection and recovery.** FAIL-Detect, Sentinel and VLM success detectors detect failures. Rewind-IL, Phase-Conditioned IL, FLARE and FAR retry or respawn locally. Our detector is deliberately simple (calibrated logistic regression on robot-observable step features) so that the retry policy, not the detector, is what is evaluated.
+
+## 3 System
+
+```
+phone video ──► perception (hands, objects, mat markers, depth) ──► events + phases ──► program inference
+                                                                             │                 │
+                                                                             ▼                 ▼
+                                               retargeting (grasp axis, width, approach, IK filter, smoothing)
+                                                                             │
+                                                                             ▼
+             pseudo-demos (object-centric obs, cumulative TCP-target chunks) ──► ACT (bootstrap ensemble)
+                                                                             │
+     overhead camera ──► object poses ──► executor (ready pose → policy → per-step detector → retry/help)
+                                                                             │
+                                                  IK ──► SafeController (limits, box, e-stop, watchdog, proximity) ──► arm
+```
+
+**Hardware model.** A 5-DoF SO-100-class arm with a parallel jaw, closed-form IK, servo dynamics and gravity compensation (D-002, D-004), {{const.ctrl_hz}} Hz end-effector control and a TCP speed limit of {{const.tcp_speed}} m/s. A fixed overhead RGB-D camera sees a printed mat with a 5×6 grid and four corner markers (`hardware/mat.pdf`). Grasps hold through a jaw-containment test plus a soft weld (D-003, D-008), so grasp *precision* matters but grasp *force* is not modelled.
+
+**Safety layer** (`safety/`, tested in CI). Joint position, velocity and effort limits; a Cartesian workspace box and no-go zones; a latching e-stop polled every tick; a watchdog that freezes the arm when the policy stalls; and a camera-based person-proximity pause. Drivers accept commands only with the SafeController's token, and the real robot can only be started through `scripts/supervised_session.py`, which requires typed operator-presence confirmation, re-confirmation every five minutes and a resolved `SAFETY_LOG.md`.
+
+## 4 From phone video to robot pseudo-demonstrations
+
+**Synthetic phone videos (sim stage).** A simulated person performs each chore with minimum-jerk reaches from their side of the table, oblique approaches, a pinch across the object's narrow axis, tremor, and a hand-held camera with shake (D-013). Hand keypoints come from a simulated HaMeR/WiLoR-class estimator: ground truth plus AR(1) camera-frame noise, emitted only when skin pixels are visible. Mean clip length for desk clearing is {{m3.desk_clearing.vid_s}}.
+
+**Perception and phases.** Camera pose per frame comes from the mat markers (tracked PnP, D-014). Objects are segmented by colour class and back-projected with depth, and the hand from the estimator. Grasp and release events come from hand–object proximity, aperture and the release-height cue (D-015). The task program (which objects move, to which landmark, with what offset, and in which order) is inferred across demos by choosing the landmark that minimises the variance of the relative place position (D-016).
+
+**Retargeting.** Grasp centre = thumb–index midpoint, jaw yaw = thumb–index axis, jaw opening = aperture minus fingertip thickness. Object-centric snapping moves grasp and place targets to the tracked object when the hand is within a few centimetres (D-020). The robot then descends vertically for the last approach and lifts to transit height before horizontal moves. An IK feasibility filter rejects segments with mostly unreachable waypoints, and arc-length re-timing runs at robot speed. Pseudo-demo goal features are relabelled with the inferred program, so training and runtime goals mean the same thing (D-022).
+
+**Table 1: video processing accuracy vs simulator ground truth** (24 clips per chore; event tolerance 0.3 s). Pick and place errors are median object position errors.
+
+| Chore | Event F1 | Boundary err. (median) | Pick err. | Place err. | Hand kp. err. | Clips accepted | Moved objects correct |
+|---|---|---|---|---|---|---|---|
+| desk clearing | {{m3.desk_clearing.f1}} | {{m3.desk_clearing.bnd}} | {{m3.desk_clearing.pick}} | {{m3.desk_clearing.place}} | {{m3.desk_clearing.kp}} | {{m3.desk_clearing.accept}} | {{m3.desk_clearing.moved}} |
+| sorting | {{m3.sorting.f1}} | {{m3.sorting.bnd}} | {{m3.sorting.pick}} | {{m3.sorting.place}} | {{m3.sorting.kp}} | {{m3.sorting.accept}} | {{m3.sorting.moved}} |
+| shelf put-away | {{m3.shelf_putaway.f1}} | {{m3.shelf_putaway.bnd}} | {{m3.shelf_putaway.pick}} | {{m3.shelf_putaway.place}} | {{m3.shelf_putaway.kp}} | {{m3.shelf_putaway.accept}} | {{m3.shelf_putaway.moved}} |
+| stacking | {{m3.stacking.f1}} | {{m3.stacking.bnd}} | {{m3.stacking.pick}} | {{m3.stacking.place}} | {{m3.stacking.kp}} | {{m3.stacking.accept}} | {{m3.stacking.moved}} |
+| held-out (tray) | {{m3.tray_heldout.f1}} | {{m3.tray_heldout.bnd}} | {{m3.tray_heldout.pick}} | {{m3.tray_heldout.place}} | {{m3.tray_heldout.kp}} | {{m3.tray_heldout.accept}} | {{m3.tray_heldout.moved}} |
+
+The sorting pick error is dominated by identity swaps between the two identical red (and the two identical blue) blocks. The scorer treats identical instances as interchangeable, but the per-instance error metric does not. **Sensitivity (desk clearing, 12 clips).** Event F1 is {{m3.sweep.hand_noise_3mm.f1}} / {{m3.sweep.hand_noise_6mm.f1}} / {{m3.sweep.hand_noise_12mm.f1}} / {{m3.sweep.hand_noise_24mm.f1}} for a simulated hand-estimator noise of 3 / 6 (default) / 12 / 24 mm. Without phone depth (RGB-only plus table-plane prior), F1 is {{m3.sweep.rgb_only.f1}} and pick error is {{m3.sweep.rgb_only.pick}}. The coloured-fingertip-cap detector, our real-world fallback if no hand-pose model is available, reaches only {{m3.sweep.fingertip_caps.f1}} F1. That is a weakness of the fallback that a real deployment must fix with a learned hand-pose model.
+
+## 5 Policy learning
+
+**Observation and action** (D-005, D-024, D-025). Observations are object-centric and low-dimensional: target-object and goal positions relative to the TCP, object yaw (not observed for rotationally symmetric objects), class, size, and jaw opening/command. The absolute TCP position, jaw yaw and pitch are deliberately *not* observed. Pitch comes from the arm's kinematics. Actions are chunks of {{const.chunk}} future TCP targets, each expressed relative to the TCP at prediction time, plus jaw yaw and gripper command. Chunks are executed with ACT temporal ensembling. **Training.** ACT (CVAE + transformer decoder), {{const.steps}} steps, the same configuration and compute for every data source (Rule 6). Hyper-parameters were chosen on validation placements only, averaged over the video and teleop sources (D-026).
+
+**Executor.** For each object step the executor runs a ready-pose primitive (open the jaw if closed, rise to transit height; D-023), perceives once, and runs the policy at {{const.ctrl_hz}} Hz until release or timeout. The same executor runs the simulated teleoperator, every learned policy, the recovery wrapper, and (via `hardware/real_env.py`) the real arm.
+
+**Design findings that changed the outcome** (validation placements, single seed, `results/sim/dev_policy_design_desk_clearing.json`; items placed):
+
+| Variant | Video policy | Teleop policy |
+|---|---|---|
+| per-tick delta chunks, full observation | {{dev.video_10|delta_rel}} | {{dev.teleop_1x|delta_rel}} |
+| per-tick delta chunks, newest-chunk execution | {{dev.video_10|delta_rel_newest}} | {{dev.teleop_1x|delta_rel_newest}} |
+| cumulative target chunks, full observation | {{dev.video_10|cumulative_rel}} | {{dev.teleop_1x|cumulative_rel}} |
+| **cumulative + minimal observation (default)** | {{dev.video_10|cumulative_minimal (default)}} | {{dev.teleop_1x|cumulative_minimal (default)}} |
+| default + 4 mm perception-noise augmentation | {{dev.video_10|default + obs-noise aug 4mm}} | {{dev.teleop_1x|default + obs-noise aug 4mm}} |
+| default + keyframe corrective augmentation | {{dev.video_10|default + corrective aug}} | {{dev.teleop_1x|default + corrective aug}} |
+| default, chunk 20 | {{dev.video_10|default, K=20}} | {{dev.teleop_1x|default, K=20}} |
+| default, 2× training steps | {{dev.video_10|default, 6000 steps}} | {{dev.teleop_1x|default, 6000 steps}} |
+| MLP (same obs/action) | {{dev.video_10|mlp (cumulative, minimal)}} | {{dev.teleop_1x|mlp (cumulative, minimal)}} |
+| Diffusion Policy (same obs/action, same steps) | {{dev.video_10|diffusion policy (cumulative, minimal)}} | {{dev.teleop_1x|diffusion policy (cumulative, minimal)}} |
+| default, goal features *not* relabelled | {{dev.video_10|default, no goal relabelling}} | — |
+
+The key failure was this. With per-tick delta chunks, a chunk encodes the demonstrator's *timing*. Under the servo model the arm moves only part of each commanded step, so temporally ensembled chunks decelerated and descended several centimetres short of the object (traced in D-025). Expressing chunks as spatial targets fixed it.
+
+## 6 Uncertainty-driven demo requests
+
+A bootstrap ensemble of {{const.members}} ACT policies is rolled out in the digital twin on a pool of {{const.pool}} fresh candidate placements per round (training-side seeds, never evaluation placements). For every candidate and every object step we average the ensemble disagreement (std of the next TCP target across members) separately over the *pick* phase (jaw open) and the *place* phase (jaw closed). The request is the candidate whose worst (object, phase) has the highest disagreement. It is rendered as text plus a key frame with that object circled, e.g. *"{{m5.example_request}}"*. **Baselines** at the same number of videos: *random* (a random candidate from the same pool) and *round-robin* (cycle objects × mat regions). Every requested video costs the same human time (film + set-up + reset + {{const.request_overhead_s}} s to read the request).
+
+## 7 Failure detection and recovery
+
+After each object step the robot computes features it can observe: the jaw opening when the gripper was last commanded closed relative to the object width, lift ticks, timeout, and the camera-measured distance from the object to its goal, its height relative to the goal, how far it moved, and the step duration. Two class-balanced logistic regressions predict *grasped* and *placed*. The failure threshold is calibrated on held-out steps for ≥ 0.8 precision. On a flagged failure the robot retreats safely (opens the jaw, rises vertically), re-perceives, and retries that object step, up to {{const.max_retries}} times. It then asks for help. We compare against no recovery, a detector-free "retry every step once" baseline (are extra attempts alone enough?), and an oracle detector.
+
+## 8 Evaluation
+
+**Protocol** (frozen and checksummed, `eval/protocol/`). Per chore there are {{const.trials_seen}} seen-placement cards, {{const.trials_unseen}} unseen-placement cards (at least one object in a held-out grid cell), unseen-object substitutions, and lighting variants. Seed spaces for evaluation and training are disjoint by construction, and filming/teleop never use held-out cells. Each condition is repeated over {{const.seeds}} independent data collections + trainings. We pool trials and report Wilson {{const.ci}} intervals, and differences with Newcombe intervals. Scoring uses simulator ground truth at this stage. On the real robot it is the overhead-camera auto-score confirmed by the operator, with a {{const.audit_frac}} video audit.
+
+**Human-time accounting** (Rule 5). Video: clip duration + {{const.setup_s}} s set-up + {{const.reset_s}} s reset per clip, and rejected clips still count. Teleop: demo duration + set-up + reset, with demos added until the budget of the {{const.n_videos}}-video condition is spent. The simulated operator moves at {{const.operator_speed}} of the robot's speed limit with tracking noise and occasional hesitation. A faster, more precise operator is a sensitivity condition. Self-practice charges the supervision time of every practice episode plus its reset.
+
+### 8.1 Video vs teleop at equal human time (desk clearing)
+
+**Table 2: full-chore success, desk clearing (sim, {{const.seeds}} seeds × ({{const.trials_seen}} seen + {{const.trials_unseen}} unseen) trials per condition).**
+
+| Condition | Human min | Seen placements | Unseen placements | All | Items placed (all) |
+|---|---|---|---|---|---|
+| video, 5 clips | {{m4.video_5.min}} | {{m4.video_5.seen}} | {{m4.video_5.unseen}} | {{m4.video_5.all}} | {{m4.video_5.all.obj}} |
+| **video, 10 clips** | {{m4.video_10.min}} | {{m4.video_10.seen}} | {{m4.video_10.unseen}} | **{{m4.video_10.all}}** | {{m4.video_10.all.obj}} |
+| video, 20 clips | {{m4.video_20.min}} | {{m4.video_20.seen}} | {{m4.video_20.unseen}} | {{m4.video_20.all}} | {{m4.video_20.all.obj}} |
+| **teleop, 1× time** | {{m4.teleop_1x.min}} | {{m4.teleop_1x.seen}} | {{m4.teleop_1x.unseen}} | **{{m4.teleop_1x.all}}** | {{m4.teleop_1x.all.obj}} |
+| teleop, 2× time | {{m4.teleop_2x.min}} | {{m4.teleop_2x.seen}} | {{m4.teleop_2x.unseen}} | {{m4.teleop_2x.all}} | {{m4.teleop_2x.all.obj}} |
+| teleop, 4× time | {{m4.teleop_4x.min}} | {{m4.teleop_4x.seen}} | {{m4.teleop_4x.unseen}} | {{m4.teleop_4x.all}} | {{m4.teleop_4x.all.obj}} |
+| teleop, fast operator, 1× | {{m4.teleop_fast_1x.min}} | {{m4.teleop_fast_1x.seen}} | {{m4.teleop_fast_1x.unseen}} | {{m4.teleop_fast_1x.all}} | {{m4.teleop_fast_1x.all.obj}} |
+| − retargeting (raw wrist path) | {{m4.video_raw.min}} | {{m4.video_raw.seen}} | {{m4.video_raw.unseen}} | {{m4.video_raw.all}} | {{m4.video_raw.all.obj}} |
+| − object-centric targets | {{m4.video_hand.min}} | {{m4.video_hand.seen}} | {{m4.video_hand.unseen}} | {{m4.video_hand.all}} | {{m4.video_hand.all.obj}} |
+| + sim pre-training | {{m4.video_simpre.min}} | {{m4.video_simpre.seen}} | {{m4.video_simpre.unseen}} | {{m4.video_simpre.all}} | {{m4.video_simpre.all.obj}} |
+| + self-practice (1 round) | {{m4.video_practice.min}} | {{m4.video_practice.seen}} | {{m4.video_practice.unseen}} | {{m4.video_practice.all}} | {{m4.video_practice.all.obj}} |
+
+![M4](figures/m4_video_vs_teleop.png) ![human time](figures/m4_human_time.png)
+
+At equal human time, the 10-video policy beats teleop by {{m4.diff.video10_teleop1x}}. It still beats teleop given twice ({{m4.diff.video_10_teleop_2x}}) and four times ({{m4.diff.video_10_teleop_4x}}) the human time. Why: in the same minutes a person films {{const.n_videos}} clips but only about {{m4.teleop_1x.n_demos}} teleop demos (the simulated operator succeeded in {{m4.teleop_1x.operator_success}} of their demos). That amounts to {{m4.video_10.n_segments}} vs {{m4.teleop_1x.n_segments}} usable object-step segments. Retargeted video pseudo-demos are also cleaner (robot-speed, no hesitation, no tracking noise). The teleop policies were unstable across seeds (see per-seed results in the result file). **Ablations:** retargeting is essential ({{m4.diff.video_10_video_raw}} vs raw wrist trajectories), and so are object-centric targets ({{m4.diff.video_10_video_hand}}). Task-agnostic sim pre-training made no difference ({{m4.diff.video_simpre_video_10}}). One round of self-practice changed success by {{m4.diff.video_practice_video_10}} while roughly quadrupling the human time ({{m4.video_practice.min}} min, because a person must supervise and reset every practice episode). The robot's own camera-based auto-score agreed with ground truth on {{m4.video_practice.practice_agree}} of practice steps. Doubling the videos from 10 to 20 gives {{m4.diff.video_20_video_10}}. The −VLA-pretraining ablation was not run (no GPU).
+
+### 8.2 Uncertainty-driven requests
+
+**Table 3: full-chore success (seen + unseen placements, {{const.seeds}} seeds) after each request round ({{const.k_requests}} videos per round).**
+
+| Videos | Uncertainty | Random | Round-robin |
+|---|---|---|---|
+| 10 (shared start) | {{m5.uncertainty.r0}} | {{m5.random.r0}} | {{m5.round_robin.r0}} |
+| 12 | {{m5.uncertainty.r1}} | {{m5.random.r1}} | {{m5.round_robin.r1}} |
+| 14 | {{m5.uncertainty.r2}} | {{m5.random.r2}} | {{m5.round_robin.r2}} |
+| 16 | {{m5.uncertainty.r3}} | {{m5.random.r3}} | {{m5.round_robin.r3}} |
+| 18 | {{m5.uncertainty.r4}} | {{m5.random.r4}} | {{m5.round_robin.r4}} |
+| 20 | {{m5.uncertainty.r5}} | {{m5.random.r5}} | {{m5.round_robin.r5}} |
+| human min at 20 videos | {{m5.uncertainty.final.min}} | {{m5.random.final.min}} | {{m5.round_robin.final.min}} |
+| videos to reach {{const.target}} | {{m5.uncertainty.to_target}} | {{m5.random.to_target}} | {{m5.round_robin.to_target}} |
+
+![M5](figures/m5_active.png)
+
+The original target ({{const.orig_target}} full-chore success) was not reached by any strategy within 20 videos, so we report the videos needed to reach {{const.target}} and the best result achieved: uncertainty {{m5.uncertainty.best}}, random {{m5.random.best}}, round-robin {{m5.round_robin.best}}. Pooled over rounds 1–5, uncertainty vs random is {{m5.diff.pooled.uncertainty_random}} and uncertainty vs round-robin is {{m5.diff.pooled.uncertainty_round_robin}}. At 20 videos the differences are {{m5.diff.final.uncertainty_random}} and {{m5.diff.final.uncertainty_round_robin}}. **Which requests did the robot make?** {{m5.unc_place_frac}} of the uncertainty-driven requests targeted the place phase, and the most-requested object was the {{m5.unc_top_obj}}. Ensemble disagreement concentrates on placements where the policy is already unstable. We do not find evidence that this beats coverage-style or random requests at this scale. That is a negative result for Contribution 2 in its current form.
+
+### 8.3 Failure detection and recovery
+
+Detector on held-out eval-card steps: precision {{m6.det.test.prec}}, recall {{m6.det.test.rec}}, false-alarm rate {{m6.det.test.far}} ({{m6.det.test.n}} steps), and phase attribution correct on {{m6.det.test.phase_acc}} of detected failures.
+
+| Mode | Full-chore success | Mean retries / trial |
+|---|---|---|
+| no recovery | {{m6.no_recovery}} | {{m6.no_recovery.retries}} |
+| retry every step once (no detector) | {{m6.blind_retry_once}} | {{m6.blind_retry_once.retries}} |
+| **learned detector + retry** | **{{m6.recovery}}** | {{m6.recovery.retries}} |
+| oracle detector + retry | {{m6.oracle_recovery}} | {{m6.oracle_recovery.retries}} |
+
+![M6](figures/m6_recovery.png)
+
+Recovery vs none: {{m6.diff.recovery}}; vs blind retry: {{m6.diff.recovery_vs_blind}}; oracle vs none: {{m6.diff.oracle}}.
+
+### 8.4 More chores, a held-out chore, and generalization
+
+**Table 4: seen-placement full-chore success per chore (sim).** All rows use {{const.n_videos}} videos or equal-time teleop.
+
+| Chore | Video (10 clips) | Teleop (1×) | Video − teleop | Human min (video) | Time per successful chore |
+|---|---|---|---|---|---|
+| sorting | {{m7.sorting.video_10.seen}} | {{m7.sorting.teleop_1x.seen}} | {{m7.diff.sorting}} | {{m7.sorting.video_10.min}} | {{m7.sorting.video_10.time}} |
+| shelf put-away | {{m7.shelf_putaway.video_10.seen}} | {{m7.shelf_putaway.teleop_1x.seen}} | {{m7.diff.shelf_putaway}} | {{m7.shelf_putaway.video_10.min}} | {{m7.shelf_putaway.video_10.time}} |
+| stacking | {{m7.stacking.video_10.seen}} | {{m7.stacking.teleop_1x.seen}} | {{m7.diff.stacking}} | {{m7.stacking.video_10.min}} | {{m7.stacking.video_10.time}} |
+| held-out tray (video only at test time) | {{m7.tray_heldout.video_10.seen}} | {{m7.tray_heldout.teleop_1x.seen}} | {{m7.diff.tray_heldout}} | {{m7.tray_heldout.video_10.min}} | {{m7.tray_heldout.video_10.time}} |
+| held-out tray, multi-chore pre-training | {{m7.tray_heldout.video_10_multipre.seen}} | — | {{m7.diff.multipre}} vs from scratch | {{m7.tray_heldout.video_10_multipre.min}} | {{m7.tray_heldout.video_10_multipre.time}} |
+| towel folding (deformable) | not run (no cloth model, B-004) | — | — | — | — |
+
+**Table 5: generalization, desk clearing, items placed (sim).**
+
+| Test | Video (10 clips) | Teleop (1×) |
+|---|---|---|
+| nominal (seen placements) | {{m7.gen.video_10.nominal.obj}} | {{m7.gen.teleop_1x.nominal.obj}} |
+| unseen objects (can for cup, snack box for box) | {{m7.gen.video_10.unseen_objects.obj}} | {{m7.gen.teleop_1x.unseen_objects.obj}} |
+| lighting (dim / warm-bright) | {{m7.gen.video_10.lighting.obj}} | {{m7.gen.teleop_1x.lighting.obj}} |
+| clutter, 2 distractors of new colours | {{m7.gen.video_10.clutter_new_colours.obj}} | {{m7.gen.teleop_1x.clutter_new_colours.obj}} |
+| clutter, 2 distractors of task colours | {{m7.gen.video_10.clutter_same_colours.obj}} | {{m7.gen.teleop_1x.clutter_same_colours.obj}} |
+| camera bumped 1 cm (no recalibration) | {{m7.gen.video_10.camera_bump_1cm.obj}} | {{m7.gen.teleop_1x.camera_bump_1cm.obj}} |
+| camera bumped 2 cm (no recalibration) | {{m7.gen.video_10.camera_bump_2cm.obj}} | {{m7.gen.teleop_1x.camera_bump_2cm.obj}} |
+
+![chores](figures/m7_chores.png) ![generalization](figures/m7_generalization.png)
+
+### 8.5 Teaching app
+
+Scripted non-expert run of the teaching app on the held-out chore in the twin (`make teach-demo`): {{m8.minutes}} logged human minutes for {{m8.n_videos}} videos (10 + {{const.k_requests}} requested). The first try reached {{m8.try_first}} and the try after the requested demos reached {{m8.try_last}} full-chore success. The real "you teach it" test is HUMAN_TODO H9.
+
+## 9 Safety
+
+All runs go through the same SafeController as the real arm. In a dedicated audit we replayed trained policies and checked the *measured* arm state: {{safety.episodes}} episodes, {{safety.ticks}} control ticks, **{{safety.incidents}} limit violations** (workspace box, no-go zones, joint limits, joint and TCP speed). The filter intervened on {{safety.interventions}} ticks, which were mostly commands below the workspace floor. Peak TCP speed was {{safety.max_tcp_speed}} m/s against the {{const.tcp_speed}} m/s limit. CI fails if any limit can be exceeded or the e-stop path is removed from a control loop. No real-robot session has been run, so `SAFETY_LOG.md` is empty.
+
+## 10 Limitations and threats to validity
+
+* **Everything is simulated**, including the person, the phone, the hand-pose estimator (Gaussian error model) and the teleoperator. The video-vs-teleop gap depends on modelled operator speed and noise. A skilled leader-arm operator on real hardware may close it. The real comparison (session S2) is the decisive experiment.
+* **Grasping is simplified** (containment test + weld), so real grasp failures from slip, compliance and mass are missing. Sim success likely overestimates real success for every method.
+* **Perception stand-ins.** Colour segmentation stands in for SAM 2 + class prompts, and synthetic depth for phone LiDAR. The fingertip-cap fallback is weak ({{m3.sweep.fingertip_caps.f1}} event F1), so a real system needs a learned hand-pose model.
+* **Small-scale learning.** Low-dimensional object-centric observations, no VLA, and CPU-only training. Policies are trained per chore.
+* **Statistics.** Trials within a seed share one trained policy, so pooled Wilson intervals understate between-seed variance, which is large for teleop. Per-seed numbers are in the result files.
+* **Active learning negative result.** It may depend on pool size, the ensemble size of {{const.members}}, and requesting 2 videos per round. We did not tune these on evaluation data.
+
+## 11 Conclusion
+
+At the sim stage, the answer to the main question is **mixed**. Learning from {{const.n_videos}} phone videos clearly beats teleoperation at equal human time in our twin, and the retargeting design choices are essential. Uncertainty-driven requests did not beat random or round-robin requests. Per-step recovery helps only modestly. All of it awaits the real-robot sessions queued in `SESSION_QUEUE.md`.
+
+*Reproduce:* `make reproduce-quick` (< 1 h) and `make reproduce-full`. Figures: `make figures`. Numbers: `make paper`.

@@ -6,7 +6,8 @@
 2. Fit grasp- and place-phase logistic detectors on 70 % of the steps, calibrate the threshold on the other 30 %
    (target precision 0.8), and measure precision / recall on steps from separate eval-card rollouts.
 3. Full-chore success with vs without recovery (max 2 retries per object, then "ask for help"), plus an oracle
-   detector (simulator truth) as the upper bound for this retry policy.
+   detector (simulator truth) as the upper bound and a detector-free "retry every step once" baseline (is the
+   detector needed, or do extra attempts alone help?).
 """
 
 from __future__ import annotations
@@ -129,7 +130,8 @@ def main() -> None:
         test_steps += collect_steps(args.chore, pols, progs[s], cards)
         row: dict[str, Any] = {"seed": s, "checkpoint_hash": ensemble_hash(pols)}
         for mode, hook, kw in (("no_recovery", None, None), ("recovery", "recovery", {"detector_path": str(det_path)}),
-                               ("oracle_recovery", "recovery", {"detector_path": str(det_path), "oracle": True})):
+                               ("oracle_recovery", "recovery", {"detector_path": str(det_path), "oracle": True}),
+                               ("blind_retry_once", "recovery", {"detector_path": str(det_path), "blind": True})):
             trials = evaluate(args.chore, pols, progs[s], "x", perceiver="overhead", hook=hook, hook_kw=kw,
                               cards=cards)
             retries = [sum(1 for e in t.get("recovery", []) if e["action"] == "retry") for t in trials]
@@ -145,7 +147,7 @@ def main() -> None:
     from eval.stats import wilson
 
     pooled: dict[str, Any] = {}
-    for mode in ("no_recovery", "recovery", "oracle_recovery"):
+    for mode in ("no_recovery", "recovery", "oracle_recovery", "blind_retry_once"):
         k = sum(r[mode]["success"]["k"] for r in runs)
         n = sum(r[mode]["success"]["n"] for r in runs)
         p, lo, hi = wilson(k, n)

@@ -1,0 +1,86 @@
+{
+  "name": "sim/safety_audit_quick",
+  "stage": "sim",
+  "timestamp": "2026-10-27T14:26:54.006057+00:00",
+  "git": {
+    "sha": "3d1f99035b854eb29c4a6e3c454b888b2545368d",
+    "dirty": true
+  },
+  "hardware": {
+    "platform": "macOS-27.0.1-arm64-arm-64bit",
+    "machine": "arm64",
+    "python": "3.12.14",
+    "cpus": 18,
+    "torch": "2.14.1",
+    "cuda": false,
+    "mps": true,
+    "mujoco": "3.16.0"
+  },
+  "seed": 0,
+  "checkpoint_hash": null,
+  "dataset_hash": null,
+  "config": {
+    "tolerance_m": 0.003,
+    "speed_factor": 1.1,
+    "chore": "desk_clearing",
+    "n": 20,
+    "quick": true
+  },
+  "command": "python /Users/eshaan.kapooswalla/Tidy/bench/safety_audit.py --quick",
+  "videos": [],
+  "results": {
+    "rows": [
+      {
+        "method": "video_10",
+        "seed": 0,
+        "episodes": 6,
+        "ticks": 2872,
+        "workspace": 0,
+        "no_go": 0,
+        "joint_limit": 0,
+        "joint_speed": 0,
+        "tcp_speed": 0,
+        "interventions": 47,
+        "max_joint_speed_frac": 1.0002215227350653,
+        "max_tcp_speed": 0.17946537629658688
+      },
+      {
+        "method": "teleop_1x",
+        "seed": 0,
+        "episodes": 6,
+        "ticks": 4942,
+        "workspace": 0,
+        "no_go": 0,
+        "joint_limit": 0,
+        "joint_speed": 0,
+        "tcp_speed": 0,
+        "interventions": 91,
+        "max_joint_speed_frac": 1.0001888416709832,
+        "max_tcp_speed": 0.15610094895654367
+      },
+      {
+        "method": "video_raw",
+        "seed": 0,
+        "episodes": 6,
+        "ticks": 5328,
+        "workspace": 0,
+        "no_go": 0,
+        "joint_limit": 0,
+        "joint_speed": 0,
+        "tcp_speed": 0,
+        "interventions": 3819,
+        "max_joint_speed_frac": 1.01643802936259,
+        "max_tcp_speed": 0.18550938595936087
+      }
+    ],
+    "total": {
+      "episodes": 18,
+      "ticks": 13142,
+      "incidents": 0,
+      "interventions": 3957,
+      "max_joint_speed_frac": 1.01643802936259,
+      "max_tcp_speed": 0.18550938595936087
+    },
+    "wall_s": 23.20447587966919
+  }
+}

@@ -21,6 +21,7 @@ CONST = {
     "const.rounds": "5", "const.max_retries": "2", "const.audit_frac": "20%", "const.target": "50%",
     "const.budget_usd": "$250–450", "const.ctrl_hz": "10", "const.chunk": "10", "const.steps": "3000",
     "const.tcp_speed": "0.20", "const.pool": "30", "const.members": "3",
+    "const.operator_speed": "60–90%", "const.ci": "95%", "const.orig_target": "80%",
 }
 
 
@@ -118,9 +119,6 @@ def registry() -> dict[str, tuple[str, str]]:
             ops = [x["meta"].get("operator_success") for x in rs if x["meta"].get("operator_success") is not None]
             if ops:
                 put(f"m4.{c}.operator_success", f"{sum(ops)}/{sum(n_demo)}", src)
-        safety = sum(len(t["safety_events"]) for x in runs for sp in x["splits"].values() for t in sp["trials"]
-                     if any(e.startswith(("workspace", "nan", "estop")) for e in t["safety_events"]))
-        put("m4.safety_trials_with_limit_events", str(safety), src)
         put("m4.n_trials_total", str(sum(len(sp["trials"]) for x in runs for sp in x["splits"].values())), src)
     # ---------------- M5
     src = "sim/m5_active_desk_clearing"
@@ -176,6 +174,9 @@ def registry() -> dict[str, tuple[str, str]]:
             put(f"m6.{m}.safety", str(v["safety_events"]), src)
         put("m6.diff.recovery", diff(P["recovery"], P["no_recovery"]), src)
         put("m6.diff.oracle", diff(P["oracle_recovery"], P["no_recovery"]), src)
+        if "blind_retry_once" in P:
+            put("m6.diff.blind", diff(P["blind_retry_once"], P["no_recovery"]), src)
+            put("m6.diff.recovery_vs_blind", diff(P["recovery"], P["blind_retry_once"]), src)
     # ---------------- M7
     src = "sim/m7_multichore"
     r = _load(src)
@@ -213,6 +214,17 @@ def registry() -> dict[str, tuple[str, str]]:
             put("m8.try_last", ci(tries[-1]["success"]), src)
             put("m8.try_last.obj", ci(tries[-1]["objects"]), src)
             put("m8.n_videos", str(tries[-1]["n_videos"]), src)
+    # ---------------- safety audit
+    src = "sim/safety_audit"
+    r = _load(src)
+    if r:
+        t = r["results"]["total"]
+        put("safety.episodes", str(t["episodes"]), src)
+        put("safety.ticks", f"{t['ticks']:,}", src)
+        put("safety.incidents", str(t["incidents"]), src)
+        put("safety.interventions", f"{t['interventions']:,}", src)
+        put("safety.max_tcp_speed", f"{t['max_tcp_speed']:.2f}", src)
+        put("safety.max_joint_speed_frac", pct(t["max_joint_speed_frac"]), src)
     # ---------------- design ablation (validation)
     src = "sim/dev_policy_design_desk_clearing"
     r = _load(src)

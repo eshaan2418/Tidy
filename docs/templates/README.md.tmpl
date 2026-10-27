@@ -1,0 +1,63 @@
+# Tidy
+
+**Teach a ~{{const.budget_usd}} robot arm household chores from about {{const.n_videos}} phone videos of you doing the chore. No teleoperation. The robot asks for the one extra demo it is least sure about, and retries the step it got wrong.**
+
+> **Evidence stage: everything below is `sim`.** The results come from a MuJoCo digital twin of an SO-100-class arm with *synthetic* phone videos, a simulated hand-pose estimator and a simulated teleoperator. No real-robot result exists yet: no arm has been bought or assembled (`BLOCKERS.md`). Every real-robot step is scripted in `HUMAN_TODO.md` and `SESSION_QUEUE.md`. Every number here is generated from `results/` (`make paper`) and checked by `bench/check_claims.py`.
+
+## System
+
+```
+ phone video ─► hands · objects · mat markers · depth ─► grasp/release events ─► task program ("pen → tray, cup stays")
+                                                                │
+                 retarget: thumb–index → parallel jaw, vertical final approach, IK filter, object-centric targets
+                                                                │
+                      pseudo-demos ─► ACT ensemble ─► uncertainty ─► "Place the box at B2 … show me the pick"
+                                                                │
+ overhead cam ─► executor: ready pose → policy → failure detector → retreat + retry / ask for help
+                                                                │
+                 IK ─► SafeController (joint/velocity/effort limits, workspace box, e-stop, watchdog, proximity) ─► arm
+```
+
+## Results (sim, desk clearing unless noted)
+
+| Question | Answer (sim) | Evidence |
+|---|---|---|
+| 10 phone videos vs teleop at **equal human time** | video **{{m4.video_10.all}}** vs teleop **{{m4.teleop_1x.all}}** full-chore success ({{m4.diff.video10_teleop1x}}; {{m4.video_10.min}} vs {{m4.teleop_1x.min}} human min) | `results/sim/m4_video_vs_teleop_desk_clearing.json` |
+| …and vs teleop with 4× the time | teleop 4× ({{m4.teleop_4x.min}} min): {{m4.teleop_4x.all}} | same |
+| Does retargeting matter? | raw hand trajectories {{m4.video_raw.all}}; without object-centric targets {{m4.video_hand.all}} | same |
+| Uncertainty-driven vs random demo requests (rounds 1–5 pooled) | uncertainty {{m5.uncertainty.pooled}} vs random {{m5.random.pooled}} ({{m5.diff.pooled.uncertainty_random}}) vs round-robin {{m5.round_robin.pooled}} | `results/sim/m5_active_desk_clearing.json` |
+| Failure detection + retry | {{m6.no_recovery}} → {{m6.recovery}} ({{m6.diff.recovery}}); detector precision {{m6.det.test.prec}}, recall {{m6.det.test.rec}} | `results/sim/m6_recovery_desk_clearing.json` |
+| Other chores, seen placements (video / teleop) | sorting {{m7.sorting.video_10.seen}} / {{m7.sorting.teleop_1x.seen}}; shelf {{m7.shelf_putaway.video_10.seen}} / {{m7.shelf_putaway.teleop_1x.seen}}; stacking {{m7.stacking.video_10.seen}} / {{m7.stacking.teleop_1x.seen}} | `results/sim/m7_multichore.json` |
+| Held-out chore taught only by video | {{m7.tray_heldout.video_10.seen}} (with multi-chore pre-training {{m7.tray_heldout.video_10_multipre.seen}}) | same |
+| Towel folding | not run: no deformable model in the twin | `BLOCKERS.md` B-004 |
+| Safety (measured arm state, audit replay) | {{safety.incidents}} limit violations in {{safety.ticks}} control ticks | `results/sim/safety_audit.json` |
+
+Bracketed ranges are Wilson {{const.ci}} intervals over {{const.seeds}} independent data collections × ({{const.trials_seen}} seen + {{const.trials_unseen}} unseen placement) trials. Differences are in percentage points with Newcombe intervals. Full tables, ablations, figures and limitations: [`paper/paper.md`](paper/paper.md). Honest summary: [`FINAL_REVIEW.md`](FINAL_REVIEW.md).
+
+**Trial-video montage.** Real trial videos will appear here after session S2 (faces never in frame). Sim rollouts can be rendered with `scripts/supervised_session.py eval --sim`, and its videos are written to `results/sim_sessions/`.
+
+## Quick start
+
+```bash
+make setup               # uv venv + pinned deps (requirements.lock)
+make test                # unit + safety tests (CI also runs lint, mypy, sim smoke, repo scan)
+make reproduce-quick     # every experiment at smoke scale, < 1 h on a laptop CPU
+make teach-demo          # the teaching app, end to end, in the twin
+make reproduce-full      # the full experiment set (hours on 16 cores)
+make paper               # figures + results/INDEX.md + README/paper/bullets from results/, then the claim check
+```
+
+Teaching app: `python scripts/teach.py --help` (new chore → filming guide → upload → process → train → try → requests → record).
+
+## Real robot: safety notes
+
+* The real arm can **only** be moved by `scripts/supervised_session.py`. It refuses to start without an interactive operator typing the presence phrase, re-confirms presence every five minutes and before every trial, and refuses while `SAFETY_LOG.md` has unresolved entries. The agent that built this repo never runs it.
+* Limits are enforced in code below the policy (`safety/`): joint position/velocity/effort, a Cartesian box, no-go zones, a latching e-stop polled every tick, a watchdog freeze, and a camera person-proximity pause. CI tests fail if any limit can be exceeded or the e-stop check is removed.
+* Keep children and pets away. No knives, hot items, liquids or glass. Never leave the arm powered and unattended.
+* Privacy: raw phone videos stay in git-ignored `data/private/`. Only processed trajectories are released, and any published frame is face-blurred.
+
+## Repo map
+
+`perception/` video + overhead perception · `phases/` events and task-program inference · `retarget/` hand→gripper · `policies/` ACT/DP/MLP, data, training · `active/` demo requests · `recovery/` failure detector + retry · `eval/` protocol, executor, stats, session runner · `safety/` · `sim/` digital twin, synthetic human, simulated teleoperator · `hardware/` driver, calibration, mat · `bench/` every experiment, figures, claim check · `scripts/` supervised sessions, teaching app.
+
+State files: `PROGRESS.md`, `DECISIONS.md`, `BLOCKERS.md`, `ENVIRONMENT.md`, `HUMAN_TODO.md`, `SESSION_QUEUE.md`, `SAFETY_LOG.md`, `results/INDEX.md`.

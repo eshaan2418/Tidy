@@ -40,6 +40,7 @@ def main() -> None:
     run([PY, "-m", "bench.m5_active", *q])
     run([PY, "-m", "bench.m6_recovery", *q])
     run([PY, "-m", "bench.m7_multichore", *q])
+    run([PY, "-m", "bench.safety_audit", *q])
     run([PY, "scripts/teach.py", "walkthrough", "tray_heldout", "--sim", "--n", "4" if a.quick else "20"])
     run([PY, "-m", "eval.queue", "--chore", "desk_clearing", "--session", "DRYRUN", "--n-seen", "1", "--n-unseen", "1"])
     run([PY, "scripts/supervised_session.py", "eval", "--sim", "--session", "DRYRUN"])

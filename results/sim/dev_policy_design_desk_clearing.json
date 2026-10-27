@@ -1,0 +1,437 @@
+{
+  "name": "sim/dev_policy_design_desk_clearing",
+  "stage": "sim",
+  "timestamp": "2026-10-27T14:39:21.289370+00:00",
+  "git": {
+    "sha": "3d1f99035b854eb29c4a6e3c454b888b2545368d",
+    "dirty": true
+  },
+  "hardware": {
+    "platform": "macOS-27.0.1-arm64-arm-64bit",
+    "machine": "arm64",
+    "python": "3.12.14",
+    "cpus": 18,
+    "torch": "2.14.1",
+    "cuda": false,
+    "mps": true,
+    "mujoco": "3.16.0"
+  },
+  "seed": 0,
+  "checkpoint_hash": null,
+  "dataset_hash": null,
+  "config": {
+    "variants": {
+      "delta_rel": {
+        "act_mode": "delta",
+        "obs_mode": "rel",
+        "agent": {}
+      },
+      "delta_rel_newest": {
+        "act_mode": "delta",
+        "obs_mode": "rel",
+        "agent": {
+          "temporal_m": -3.0
+        }
+      },
+      "cumulative_rel": {
+        "act_mode": "cumulative",
+        "obs_mode": "rel",
+        "agent": {}
+      },
+      "cumulative_minimal (default)": {
+        "agent": {}
+      },
+      "default + obs-noise aug 4mm": {
+        "aug_sigma": 0.004,
+        "agent": {}
+      },
+      "default + corrective aug": {
+        "augment": 6,
+        "agent": {}
+      },
+      "default, K=20": {
+        "K": 20,
+        "agent": {}
+      },
+      "default, 6000 steps": {
+        "steps": 6000,
+        "agent": {}
+      },
+      "mlp (cumulative, minimal)": {
+        "kind": "mlp",
+        "agent": {}
+      },
+      "diffusion policy (cumulative, minimal)": {
+        "kind": "dp",
+        "K": 8,
+        "agent": {}
+      }
+    },
+    "n_val": 30,
+    "split": "pool (validation)"
+  },
+  "command": "python /Users/eshaan.kapooswalla/Tidy/bench/dev_policy_design.py",
+  "videos": [],
+  "results": {
+    "rows": {
+      "video_10|delta_rel": {
+        "success": {
+          "k": 0,
+          "n": 30,
+          "p": 0.0,
+          "lo": 0.0,
+          "hi": 0.113517091390478
+        },
+        "objects": {
+          "k": 14,
+          "n": 120,
+          "p": 0.11666666666666667,
+          "lo": 0.07078052921096241,
+          "hi": 0.18633501193191693
+        },
+        "n_segments": 40
+      },
+      "teleop_1x|delta_rel": {
+        "success": {
+          "k": 0,
+          "n": 30,
+          "p": 0.0,
+          "lo": 0.0,
+          "hi": 0.113517091390478
+        },
+        "objects": {
+          "k": 24,
+          "n": 120,
+          "p": 0.2,
+          "lo": 0.13824380919983048,
+          "hi": 0.2803683534337273
+        },
+        "n_segments": 20
+      },
+      "video_10|delta_rel_newest": {
+        "success": {
+          "k": 1,
+          "n": 30,
+          "p": 0.03333333333333333,
+          "lo": 0.0059084379948573795,
+          "hi": 0.16670751396958874
+        },
+        "objects": {
+          "k": 48,
+          "n": 120,
+          "p": 0.4,
+          "lo": 0.3167626523940113,
+          "hi": 0.4894414018171747
+        },
+        "n_segments": 40
+      },
+      "teleop_1x|delta_rel_newest": {
+        "success": {
+          "k": 0,
+          "n": 30,
+          "p": 0.0,
+          "lo": 0.0,
+          "hi": 0.113517091390478
+        },
+        "objects": {
+          "k": 16,
+          "n": 120,
+          "p": 0.13333333333333333,
+          "lo": 0.0837653717755315,
+          "hi": 0.20564949366548352
+        },
+        "n_segments": 20
+      },
+      "video_10|cumulative_rel": {
+        "success": {
+          "k": 0,
+          "n": 30,
+          "p": 0.0,
+          "lo": 0.0,
+          "hi": 0.113517091390478
+        },
+        "objects": {
+          "k": 58,
+          "n": 120,
+          "p": 0.48333333333333334,
+          "lo": 0.3958348942305447,
+          "hi": 0.5718657814713197
+        },
+        "n_segments": 40
+      },
+      "teleop_1x|cumulative_rel": {
+        "success": {
+          "k": 1,
+          "n": 30,
+          "p": 0.03333333333333333,
+          "lo": 0.0059084379948573795,
+          "hi": 0.16670751396958874
+        },
+        "objects": {
+          "k": 42,
+          "n": 120,
+          "p": 0.35,
+          "lo": 0.27051765896559277,
+          "hi": 0.4387884223511861
+        },
+        "n_segments": 20
+      },
+      "video_10|cumulative_minimal (default)": {
+        "success": {
+          "k": 6,
+          "n": 30,
+          "p": 0.2,
+          "lo": 0.09504978102401235,
+          "hi": 0.37306047381027446
+        },
+        "objects": {
+          "k": 85,
+          "n": 120,
+          "p": 0.7083333333333334,
+          "lo": 0.6215559807865156,
+          "hi": 0.7821855729401805
+        },
+        "n_segments": 40
+      },
+      "teleop_1x|cumulative_minimal (default)": {
+        "success": {
+          "k": 1,
+          "n": 30,
+          "p": 0.03333333333333333,
+          "lo": 0.0059084379948573795,
+          "hi": 0.16670751396958874
+        },
+        "objects": {
+          "k": 61,
+          "n": 120,
+          "p": 0.5083333333333333,
+          "lo": 0.4200238208480169,
+          "hi": 0.5961258413010508
+        },
+        "n_segments": 20
+      },
+      "video_10|default + obs-noise aug 4mm": {
+        "success": {
+          "k": 8,
+          "n": 30,
+          "p": 0.26666666666666666,
+          "lo": 0.14182495553910618,
+          "hi": 0.4444830204431169
+        },
+        "objects": {
+          "k": 84,
+          "n": 120,
+          "p": 0.7,
+          "lo": 0.6128469049643513,
+          "hi": 0.7747449866132768
+        },
+        "n_segments": 40
+      },
+      "teleop_1x|default + obs-noise aug 4mm": {
+        "success": {
+          "k": 0,
+          "n": 30,
+          "p": 0.0,
+          "lo": 0.0,
+          "hi": 0.113517091390478
+        },
+        "objects": {
+          "k": 41,
+          "n": 120,
+          "p": 0.3416666666666667,
+          "lo": 0.26290306359700033,
+          "hi": 0.43025335557071076
+        },
+        "n_segments": 20
+      },
+      "video_10|default + corrective aug": {
+        "success": {
+          "k": 0,
+          "n": 30,
+          "p": 0.0,
+          "lo": 0.0,
+          "hi": 0.113517091390478
+        },
+        "objects": {
+          "k": 36,
+          "n": 120,
+          "p": 0.3,
+          "lo": 0.22525501338672319,
+          "hi": 0.38715309503564865
+        },
+        "n_segments": 40
+      },
+      "teleop_1x|default + corrective aug": {
+        "success": {
+          "k": 7,
+          "n": 30,
+          "p": 0.23333333333333334,
+          "lo": 0.11792239210501232,
+          "hi": 0.40928672330324267
+        },
+        "objects": {
+          "k": 88,
+          "n": 120,
+          "p": 0.7333333333333333,
+          "lo": 0.6478739437150142,
+          "hi": 0.8043165964588853
+        },
+        "n_segments": 20
+      },
+      "video_10|default, K=20": {
+        "success": {
+          "k": 5,
+          "n": 30,
+          "p": 0.16666666666666666,
+          "lo": 0.07336434240351683,
+          "hi": 0.33564705185680177
+        },
+        "objects": {
+          "k": 81,
+          "n": 120,
+          "p": 0.675,
+          "lo": 0.5869001692187791,
+          "hi": 0.7522427359116458
+        },
+        "n_segments": 40
+      },
+      "teleop_1x|default, K=20": {
+        "success": {
+          "k": 2,
+          "n": 30,
+          "p": 0.06666666666666667,
+          "lo": 0.01847663532769335,
+          "hi": 0.21323817721072091
+        },
+        "objects": {
+          "k": 51,
+          "n": 120,
+          "p": 0.425,
+          "lo": 0.34022892313997877,
+          "hi": 0.5144241175184108
+        },
+        "n_segments": 20
+      },
+      "video_10|default, 6000 steps": {
+        "success": {
+          "k": 6,
+          "n": 30,
+          "p": 0.2,
+          "lo": 0.09504978102401235,
+          "hi": 0.37306047381027446
+        },
+        "objects": {
+          "k": 88,
+          "n": 120,
+          "p": 0.7333333333333333,
+          "lo": 0.6478739437150142,
+          "hi": 0.8043165964588853
+        },
+        "n_segments": 40
+      },
+      "teleop_1x|default, 6000 steps": {
+        "success": {
+          "k": 2,
+          "n": 30,
+          "p": 0.06666666666666667,
+          "lo": 0.01847663532769335,
+          "hi": 0.21323817721072091
+        },
+        "objects": {
+          "k": 64,
+          "n": 120,
+          "p": 0.5333333333333333,
+          "lo": 0.4444262910579696,
+          "hi": 0.6201723575383017
+        },
+        "n_segments": 20
+      },
+      "video_10|mlp (cumulative, minimal)": {
+        "success": {
+          "k": 0,
+          "n": 30,
+          "p": 0.0,
+          "lo": 0.0,
+          "hi": 0.113517091390478
+        },
+        "objects": {
+          "k": 49,
+          "n": 120,
+          "p": 0.4083333333333333,
+          "lo": 0.3245599028350716,
+          "hi": 0.4977938135251822
+        },
+        "n_segments": 40
+      },
+      "teleop_1x|mlp (cumulative, minimal)": {
+        "success": {
+          "k": 1,
+          "n": 30,
+          "p": 0.03333333333333333,
+          "lo": 0.0059084379948573795,
+          "hi": 0.16670751396958874
+        },
+        "objects": {
+          "k": 58,
+          "n": 120,
+          "p": 0.48333333333333334,
+          "lo": 0.3958348942305447,
+          "hi": 0.5718657814713197
+        },
+        "n_segments": 20
+      },
+      "video_10|diffusion policy (cumulative, minimal)": {
+        "success": {
+          "k": 0,
+          "n": 30,
+          "p": 0.0,
+          "lo": 0.0,
+          "hi": 0.113517091390478
+        },
+        "objects": {
+          "k": 19,
+          "n": 120,
+          "p": 0.15833333333333333,
+          "lo": 0.10376896007675636,
+          "hi": 0.2340948918114622
+        },
+        "n_segments": 40
+      },
+      "teleop_1x|diffusion policy (cumulative, minimal)": {
+        "success": {
+          "k": 0,
+          "n": 30,
+          "p": 0.0,
+          "lo": 0.0,
+          "hi": 0.113517091390478
+        },
+        "objects": {
+          "k": 8,
+          "n": 120,
+          "p": 0.06666666666666667,
+          "lo": 0.03416489747129058,
+          "hi": 0.12605267077718166
+        },
+        "n_segments": 20
+      },
+      "video_10|default, no goal relabelling": {
+        "success": {
+          "k": 5,
+          "n": 30,
+          "p": 0.16666666666666666,
+          "lo": 0.07336434240351683,
+          "hi": 0.33564705185680177
+        },
+        "objects": {
+          "k": 75,
+          "n": 120,
+          "p": 0.625,
+          "lo": 0.5357678452838708,
+          "hi": 0.7064770869521468
+        },
+        "n_segments": 40
+      }
+    },
+    "wall_s": 740.1771900653839
+  }
+}
